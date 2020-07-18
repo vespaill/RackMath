@@ -1,25 +1,26 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Route, Switch, Redirect } from 'react-router-dom';
+// import NavBarBottom from './components/navBarBottom';
+import './css/App.css';
+import Inventory from './components/inventory';
+import NotFound from './components/common/notFound';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Container } from 'react-bootstrap';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Container>
+        <Switch>
+          {/* <Route path="/rackmath" component={RackMath} /> */}
+          <Route path="/inventory" component={Inventory} />
+          <Route path="/not-found" component={NotFound} />
+          <Redirect from="/" exact to="/inventory" />
+          <Redirect to="/not-found" />
+        </Switch>
+      </Container>
+      {/* <NavBarBottom /> */}
+    </>
   );
 }
 

@@ -1,0 +1,20 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bone: #e0dbc7;
+  --deep-sky-blue: #00a2ff;
+  --portal-orange: #f0ad4e;
+  --nero: #202020;
+  --dissipate: #294d67;
+}
+
+body {
+  background-color: gainsboro;
+  font-size: 24px;
+  color: black;
+  letter-spacing: 2px;
+}
