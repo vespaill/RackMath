@@ -1,11 +1,12 @@
 import React from 'react';
 
 const PlateGroup = ({ value, quantity, bgColor, onClick }) => {
+  console.log('PlateGroup', onClick);
   return (
     <div className="plate-group text-center">
       <a
         href="#0"
-        onClick={onClick}
+        onClick={() => onClick(value)}
         className={'plate-group__plate' + (quantity ? bgColor : '')}
       >
         <span className="center-vertically">{value}</span>
