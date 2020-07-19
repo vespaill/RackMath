@@ -2,7 +2,7 @@ import React from 'react';
 import { Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../css/inventory.css';
-import PlateGroup from './plateGroup';
+import InvPlateGroup from './invPlateGroup';
 
 const calcBgColor = index => {
   return (
@@ -38,7 +38,7 @@ const Inventory = props => {
           const { value, quantity } = plate;
           return (
             <Col key={index} xs={4}>
-              <PlateGroup
+              <InvPlateGroup
                 onClick={props.onClick}
                 value={value}
                 quantity={quantity}

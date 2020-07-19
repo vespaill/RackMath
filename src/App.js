@@ -11,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './css/App.css';
 
 const toKg = lbs => Math.round(lbs / 2.20462);
+const MAX_PLATES = 8;
 
 class App extends Component {
   state = {
@@ -69,85 +70,6 @@ class App extends Component {
     calculatedPlates: []
   };
 
-  handlePlateGroupClick = value => {
-    const { unit } = this.state.inventory;
-    const original = { ...this.state.inventory.availablePlates };
-    const index = original[unit].findIndex(element => element.value === value);
-    original[unit][index].quantity = (original[unit][index].quantity + 2) % 10;
-
-    this.setState({ availablePlates: original });
-  };
-
-  handleLoadSubmit = e => {
-    e.preventDefault();
-    const { value: load } = e.currentTarget.load;
-    console.log(load);
-    const { unit, availablePlates } = this.state.inventory;
-    let { barbell } = this.state.inventory;
-    barbell = barbell[unit];
-    const plates = availablePlates[unit].filter(val => val.quantity > 0);
-
-    const platesArray = this.arrayifyInventoryPlates(plates);
-    const { msg, valid } = this.validateLoad(load, barbell, platesArray);
-
-    if (!valid) toast.error(msg);
-    else {
-      this.setState({
-        calculatedPlates: this.calculatePlates(load, barbell, platesArray)
-      });
-    }
-  };
-
-  arrayifyInventoryPlates = plateFrequencies => {
-    const array = [];
-    for (let plate of plateFrequencies) {
-      for (let j = plate.quantity / 2; j > 0; --j) {
-        array.push(plate.value);
-      }
-    }
-    return array;
-  };
-
-  validateLoad = (load, barbell, platesOnOneEnd) => {
-    const totalLoadAvail =
-      barbell + platesOnOneEnd.reduce((acc, cur) => acc + cur) * 2;
-
-    console.log('validateLoad', platesOnOneEnd);
-    console.log('validateLoad', totalLoadAvail);
-
-    if (load < barbell)
-      return { msg: "That's not even the bar!", valid: false };
-    if (load > totalLoadAvail)
-      return {
-        msg: "Your inventory doesn't work with that weight",
-        valid: false
-      };
-    return { msg: 'Good', valid: true };
-  };
-
-  /**
-   * Returns an array containing the plates (weights) that must loaded on one
-   * side of a barbell in order to meet a target load.
-   * @param {Number} targetLoad Weight to load onto barbell
-   * @param {Number} barbell Weight of the barbell
-   * @param {Array} platesArray array of available plate weights.
-   */
-  calculatePlates = (targetLoad, barbell, platesArray) => {
-    let workingLoad = targetLoad - barbell;
-    if (workingLoad === 0) return []; // Target load equals barbell weight.
-    /* Only working with loading one side of the barbell. Presumably, each side
-       will be loaded identically. */
-    workingLoad /= 2;
-    let calcPlates = [];
-    for (let i = 0; i < platesArray.length; ++i) {
-      if (workingLoad >= platesArray[i]) {
-        calcPlates.push(platesArray[i]);
-        workingLoad -= platesArray[i];
-      }
-    }
-    return calcPlates;
-  };
-
   render() {
     return (
       <>
@@ -189,6 +111,114 @@ class App extends Component {
       </>
     );
   }
+
+  handlePlateGroupClick = value => {
+    const { unit } = this.state.inventory;
+    const original = { ...this.state.inventory.availablePlates };
+    const index = original[unit].findIndex(element => element.value === value);
+    original[unit][index].quantity = (original[unit][index].quantity + 2) % 10;
+
+    this.setState({ availablePlates: original });
+  };
+
+  handleLoadSubmit = e => {
+    e.preventDefault();
+    const { value: load } = e.currentTarget.load;
+    console.log(load);
+    const { unit, availablePlates } = this.state.inventory;
+    let { barbell } = this.state.inventory;
+    barbell = barbell[unit];
+    const plates = availablePlates[unit].filter(val => val.quantity > 0);
+
+    const platesArray = this.arrayifyInventoryPlates(plates);
+    const { msg, valid } = this.validateLoad(load, barbell, platesArray);
+
+    if (!valid) toast.error(msg);
+    else {
+      const { loadSuccess, tooExact, msg, array } = this.calculatePlates(
+        load,
+        barbell,
+        platesArray
+      );
+      if (!loadSuccess) toast.error(msg);
+      else {
+        if (tooExact) toast.error(msg);
+        this.setState({ calculatedPlates: array });
+      }
+    }
+  };
+
+  arrayifyInventoryPlates = plateFrequencies => {
+    const array = [];
+    for (let plate of plateFrequencies) {
+      for (let j = plate.quantity / 2; j > 0; --j) {
+        array.push(plate.value);
+      }
+    }
+    return array;
+  };
+
+  validateLoad = (load, barbell, platesOnOneEnd) => {
+    if (load < barbell)
+      return { msg: "That's not even the bar!", valid: false };
+
+    const totalWeightAvailable =
+      barbell + platesOnOneEnd.reduce((acc, cur) => acc + cur) * 2;
+
+    console.log('validateLoad', platesOnOneEnd);
+    console.log('validateLoad', totalWeightAvailable);
+
+    if (load > totalWeightAvailable)
+      return {
+        msg: "Your inventory doesn't work with that weight",
+        valid: false
+      };
+
+    return { msg: 'Load is valid', valid: true };
+  };
+
+  /**
+   * Returns an array containing the plates (weights) that must loaded on one
+   * side of a barbell in order to meet a target load.
+   * @param {Number} targetLoad Weight to load onto barbell
+   * @param {Number} barbell Weight of the barbell
+   * @param {Array} platesArray array of available plate weights.
+   */
+  calculatePlates = (targetLoad, barbell, platesArray) => {
+    let workingLoad = targetLoad - barbell;
+    if (workingLoad === 0) {
+      // Target load equals barbell weight.
+      return { loadSuccess: true, msg: 'Just the bar', array: [] };
+    }
+    /* Only working with loading one side of the barbell. Presumably, each side
+       will be loaded identically. */
+    workingLoad /= 2;
+    let calculatedPlates = [];
+    for (let plate of platesArray) {
+      if (workingLoad >= plate) {
+        calculatedPlates.push(plate);
+        if (calculatedPlates.length > MAX_PLATES)
+          return { msg: 'Not enough room on the bar!' };
+        workingLoad -= plate;
+      }
+    }
+    if (workingLoad !== 0) {
+      const sum =
+        barbell + 2 * calculatedPlates.reduce((prev, cur) => prev + cur, 0);
+
+      return {
+        loadSuccess: true,
+        tooExact: true,
+        msg: `Load is too exact—${
+          calculatedPlates.length === 0
+            ? 'Using just the bar'
+            : `Loaded ${sum} instead`
+        }`,
+        array: calculatedPlates
+      };
+    }
+    return { loadSuccess: true, array: calculatedPlates };
+  };
 }
 
 export default App;

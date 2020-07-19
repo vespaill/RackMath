@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PlateGroup = ({ value, quantity, bgColor, onClick }) => {
+const InvPlateGroup = ({ value, quantity, bgColor, onClick }) => {
   return (
     <div className="plate-group text-center">
       <a
@@ -20,4 +20,4 @@ const PlateGroup = ({ value, quantity, bgColor, onClick }) => {
   );
 };
 
-export default PlateGroup;
+export default InvPlateGroup;

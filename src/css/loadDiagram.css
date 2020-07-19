@@ -1,0 +1,63 @@
+.load {
+  position: absolute;
+  bottom: 10%;
+  margin-bottom: 150px;
+  margin-left: 10px;
+  z-index: -10;
+}
+
+.load__barbell--shaft {
+  position: absolute;
+  top: 65%;
+  left: -10000px;
+  height: 15px;
+  transform: translateY(-35%);
+  width: 10280px;
+  background-color: gray;
+  z-index: -20;
+}
+
+.load__barbell--sleeve-threshold {
+  position: absolute;
+  top: 60%;
+  width: 15px;
+  height: 30px;
+  transform: translateY(-40%);
+  background-color: gray;
+  z-index: -19;
+}
+
+.plate-container {
+  margin-right: 32px;
+  position: relative;
+  display: inline-block;
+}
+
+.plate-container__plate {
+  width: 30px;
+  background-color: black;
+}
+
+.plate-container__plate--text {
+  font-size: 1.25rem;
+  color: white;
+}
+
+/*************************** react-transition-group ***************************/
+.example-enter {
+  transform: translateX(1000px);
+}
+
+.example-enter.example-enter-active {
+  transform: translateX(0);
+  transition: transform 500ms ease-in;
+}
+
+.example-leave {
+  transform: translateX(0);
+}
+
+.example-leave.example-leave-active {
+  transform: translateX(1000px);
+  transition: transform 500ms ease-in;
+}
