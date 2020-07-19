@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
 import { Container } from 'react-bootstrap';
 import NavBarBottom from './components/navBarBottom';
 import Inventory from './components/inventory';
 import NotFound from './components/common/notFound';
 import PlateCalculator from './components/plateCalculator';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-toastify/dist/ReactToastify.css';
 import './css/App.css';
 
 const toKg = lbs => Math.round(lbs / 2.20462);
@@ -63,26 +65,112 @@ class App extends Component {
           { value: 0.25, quantity: 0 }
         ]
       }
-    }
+    },
+    calculatedPlates: []
   };
 
   handlePlateGroupClick = value => {
-    console.log('handlePlateGroupClick', this);
     const { unit } = this.state.inventory;
     const original = { ...this.state.inventory.availablePlates };
     const index = original[unit].findIndex(element => element.value === value);
     original[unit][index].quantity = (original[unit][index].quantity + 2) % 10;
 
     this.setState({ availablePlates: original });
-  }
+  };
+
+  handleLoadSubmit = e => {
+    e.preventDefault();
+    const { value: load } = e.currentTarget.load;
+    console.log(load);
+    const { unit, availablePlates } = this.state.inventory;
+    let { barbell } = this.state.inventory;
+    barbell = barbell[unit];
+    const plates = availablePlates[unit].filter(val => val.quantity > 0);
+
+    const platesArray = this.arrayifyInventoryPlates(plates);
+    const { msg, valid } = this.validateLoad(load, barbell, platesArray);
+
+    if (!valid) toast.error(msg);
+    else {
+      this.setState({
+        calculatedPlates: this.calculatePlates(load, barbell, platesArray)
+      });
+    }
+  };
+
+  arrayifyInventoryPlates = plateFrequencies => {
+    const array = [];
+    for (let plate of plateFrequencies) {
+      for (let j = plate.quantity / 2; j > 0; --j) {
+        array.push(plate.value);
+      }
+    }
+    return array;
+  };
+
+  validateLoad = (load, barbell, platesOnOneEnd) => {
+    const totalLoadAvail =
+      barbell + platesOnOneEnd.reduce((acc, cur) => acc + cur) * 2;
+
+    console.log('validateLoad', platesOnOneEnd);
+    console.log('validateLoad', totalLoadAvail);
+
+    if (load < barbell)
+      return { msg: "That's not even the bar!", valid: false };
+    if (load > totalLoadAvail)
+      return {
+        msg: "Your inventory doesn't work with that weight",
+        valid: false
+      };
+    return { msg: 'Good', valid: true };
+  };
+
+  /**
+   * Returns an array containing the plates (weights) that must loaded on one
+   * side of a barbell in order to meet a target load.
+   * @param {Number} targetLoad Weight to load onto barbell
+   * @param {Number} barbell Weight of the barbell
+   * @param {Array} platesArray array of available plate weights.
+   */
+  calculatePlates = (targetLoad, barbell, platesArray) => {
+    let workingLoad = targetLoad - barbell;
+    if (workingLoad === 0) return []; // Target load equals barbell weight.
+    /* Only working with loading one side of the barbell. Presumably, each side
+       will be loaded identically. */
+    workingLoad /= 2;
+    let calcPlates = [];
+    for (let i = 0; i < platesArray.length; ++i) {
+      if (workingLoad >= platesArray[i]) {
+        calcPlates.push(platesArray[i]);
+        workingLoad -= platesArray[i];
+      }
+    }
+    return calcPlates;
+  };
 
   render() {
-    console.log('App: render(): ', this.handlePlateGroupClick);
     return (
       <>
-        <Container>
+        <Container style={{ paddingBottom: '70px' }}>
+          <ToastContainer
+            limit={1}
+            autoClose={2000}
+            hideProgressBar
+            pauseOnFocusLoss={false}
+            draggable={false}
+            pauseOnHover={false}
+          />
           <Switch>
-            <Route path="/rackmath" component={PlateCalculator} />
+            <Route
+              path="/rackmath"
+              render={() => (
+                <PlateCalculator
+                  unit={this.state.inventory.unit}
+                  calculatedPlates={this.state.calculatedPlates}
+                  onSubmit={this.handleLoadSubmit}
+                />
+              )}
+            />
             <Route
               path="/inventory"
               render={() => (

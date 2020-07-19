@@ -1,0 +1,30 @@
+Form {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -40%);
+}
+
+input:hover,
+input:active {
+  outline: 0px !important;
+  -webkit-appearance: none;
+  box-shadow: none !important;
+}
+
+.weight-input__form {
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid black;
+  text-align: right;
+}
+
+.weight-input__form::placeholder {
+  color: #a9a9a9;
+}
+
+.weight-input__text {
+  background-color: transparent;
+  color: #000;
+  border: none;
+}

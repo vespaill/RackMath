@@ -1,0 +1,22 @@
+.load {
+  position: absolute;
+  top:65%;
+  transform: translateY(-35%);
+  margin-bottom: 225px;
+  margin-left: 10px;
+}
+
+.plate-container {
+  margin-right: 42px;
+  position: relative;
+  display: inline-block;
+}
+
+.plate-container__plate {
+  width: 40px;
+  background-color: black;
+}
+
+.plate-container__plate--text {
+  color: white;
+}

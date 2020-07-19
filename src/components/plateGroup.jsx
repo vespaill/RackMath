@@ -1,7 +1,6 @@
 import React from 'react';
 
 const PlateGroup = ({ value, quantity, bgColor, onClick }) => {
-  console.log('PlateGroup', onClick);
   return (
     <div className="plate-group text-center">
       <a

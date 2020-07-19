@@ -1,0 +1,10 @@
+.nav-item {
+  display: inline-block;
+  padding-right: 10px;
+  color: gray;
+  text-decoration: none;
+}
+
+.nav-item--active {
+  color: gray;
+}

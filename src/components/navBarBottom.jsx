@@ -1,21 +1,20 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import '../css/navBarBottom.css';
 
-const navBarBottom = () => {
+const NavBarBottom = () => {
   return (
-    <nav className="navbar navbar-expand navbar-light bg-light">
-      <div className="collapse navbar-expand navbar-collapse">
-        <div className="navbar-nav">
-          <NavLink className="nav-item nav-link" to="/rackmath">
-            calculator
-          </NavLink>
-          <NavLink className="nav-item nav-link" to="/inventory">
-            inventory
-          </NavLink>
-        </div>
+    <nav className="bg-red fixed-bottom navbar navbar-dark">
+      <div className="navbar-nav navbar-expand">
+        <NavLink className="nav-item nav-link pr-5" to="/rackmath">
+          calc
+        </NavLink>
+        <NavLink className="nav-item nav-link" to="/inventory">
+          inv
+        </NavLink>
       </div>
     </nav>
   );
 };
 
-export default navBarBottom;
+export default NavBarBottom;

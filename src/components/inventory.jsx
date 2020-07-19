@@ -20,7 +20,6 @@ const calcBgColor = index => {
 
 const Inventory = props => {
   const { unit, barbell, availablePlates } = props.data;
-  console.log('Inventory:', props.onClick);
   return (
     <>
       <Row className="d-flex justify-content-between">
