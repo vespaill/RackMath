@@ -163,10 +163,7 @@ class App extends Component {
       return { msg: "That's not even the bar!", valid: false };
 
     const totalWeightAvailable =
-      barbell + platesOnOneEnd.reduce((acc, cur) => acc + cur) * 2;
-
-    console.log('validateLoad', platesOnOneEnd);
-    console.log('validateLoad', totalWeightAvailable);
+      barbell + platesOnOneEnd.reduce((acc, cur) => acc + cur, 0) * 2;
 
     if (load > totalWeightAvailable)
       return {
@@ -174,7 +171,7 @@ class App extends Component {
         valid: false
       };
 
-    return { msg: 'Load is valid', valid: true };
+    return { valid: true };
   };
 
   /**
