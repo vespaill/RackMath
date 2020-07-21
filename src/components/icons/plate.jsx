@@ -3,9 +3,9 @@ import '../../css/icons/plate.css';
 
 const Barbell = () => {
   return (
-    <div class="plate">
-      <div class="plate__outline"></div>
-      <div class="plate__circle"></div>
+    <div className="plate">
+      <div className="plate__outline"></div>
+      <div className="plate__circle"></div>
     </div>
   );
 };
