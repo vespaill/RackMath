@@ -17,6 +17,13 @@
   z-index: -20;
 }
 
+.load__barbell--shaft > * {
+  color: white;
+  position: absolute;
+  top: -35%;
+  left: 9975px;
+}
+
 .load__barbell--sleeve-threshold {
   position: absolute;
   top: 60%;
@@ -41,23 +48,4 @@
 .plate-container__plate--text {
   font-size: 1.25rem;
   color: white;
-}
-
-/*************************** react-transition-group ***************************/
-.example-enter {
-  transform: translateX(1000px);
-}
-
-.example-enter.example-enter-active {
-  transform: translateX(0);
-  transition: transform 500ms ease-in;
-}
-
-.example-leave {
-  transform: translateX(0);
-}
-
-.example-leave.example-leave-active {
-  transform: translateX(1000px);
-  transition: transform 500ms ease-in;
 }

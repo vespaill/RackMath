@@ -1,0 +1,26 @@
+.plate {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.plate > * {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+
+.plate__outline {
+  height: 90%;
+  width: 90%;
+  color: transparent;
+  border: solid 8px white;
+}
+
+.plate__circle {
+  height: 10%;
+  width: 10%;
+  background-color: white;
+}

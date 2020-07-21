@@ -5,12 +5,15 @@ import { Container } from 'react-bootstrap';
 import NavBarBottom from './components/navBarBottom';
 import Inventory from './components/inventory';
 import NotFound from './components/common/notFound';
-import PlateCalculator from './components/plateCalculator';
+import LoadPlateCalc from './components/loadPlateCalc';
+import { modQuantity, expandFromQuantity } from './utils/inventory';
+import { toKg } from './utils/toKg';
+import { calcBgColor } from './utils/calcBgColor';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './css/App.css';
+import './css/utils.css';
 
-const toKg = lbs => Math.round(lbs / 2.20462);
 const MAX_PLATES = 8;
 
 class App extends Component {
@@ -49,14 +52,14 @@ class App extends Component {
           { value: 35, quantity: 0 },
           { value: 30, quantity: 0 },
           { value: 25, quantity: 0 },
-          { value: 20, quantity: 0 },
+          { value: 20, quantity: 8 },
           { value: 15, quantity: 0 },
           { value: 12.5, quantity: 0 },
-          { value: 10, quantity: 0 },
+          { value: 10, quantity: 8 },
           { value: 7.5, quantity: 0 },
-          { value: 5, quantity: 0 },
+          { value: 5, quantity: 8 },
           { value: 3, quantity: 0 },
-          { value: 2.5, quantity: 0 },
+          { value: 2.5, quantity: 8 },
           { value: 2, quantity: 0 },
           { value: 1.5, quantity: 0 },
           { value: 1.25, quantity: 0 },
@@ -70,7 +73,22 @@ class App extends Component {
     calculatedPlates: []
   };
 
+  componentDidMount() {
+    let availablePlates = {};
+
+    ['lbs', 'kg'].forEach(unit => {
+      availablePlates[unit] = this.state.inventory.availablePlates[
+        unit
+      ].map((plate, index) => ({ ...plate, color: calcBgColor(index) }));
+    });
+
+    const { inventory } = this.state;
+    inventory.availablePlates = availablePlates;
+    this.setState({ inventory });
+  }
+
   render() {
+    const { unit, barbell } = this.state.inventory;
     return (
       <>
         <Container style={{ paddingBottom: '70px' }}>
@@ -86,8 +104,9 @@ class App extends Component {
             <Route
               path="/rackmath"
               render={() => (
-                <PlateCalculator
-                  unit={this.state.inventory.unit}
+                <LoadPlateCalc
+                  unit={unit}
+                  barbell={barbell[unit]}
                   calculatedPlates={this.state.calculatedPlates}
                   onSubmit={this.handleLoadSubmit}
                 />
@@ -98,7 +117,8 @@ class App extends Component {
               render={() => (
                 <Inventory
                   data={this.state.inventory}
-                  onClick={this.handlePlateGroupClick}
+                  onUnitClick={this.handleUnitClick}
+                  onPlateGroupClick={this.handlePlateGroupClick}
                 />
               )}
             />
@@ -112,6 +132,13 @@ class App extends Component {
     );
   }
 
+  handleUnitClick = () => {
+    let inventory = {...this.state.inventory};
+    if (inventory.unit === 'lbs') inventory.unit = 'kg';
+    else inventory.unit = 'lbs';
+    this.setState({ inventory });
+  };
+
   handlePlateGroupClick = value => {
     const { unit } = this.state.inventory;
     const original = { ...this.state.inventory.availablePlates };
@@ -123,51 +150,40 @@ class App extends Component {
 
   handleLoadSubmit = e => {
     e.preventDefault();
-    const { value: load } = e.currentTarget.load;
-    console.log(load);
+
+    const { value: load } = e.currentTarget.loadInput;
     const { unit, availablePlates } = this.state.inventory;
-    let { barbell } = this.state.inventory;
-    barbell = barbell[unit];
-    const plates = availablePlates[unit].filter(val => val.quantity > 0);
+    const barbell = this.state.inventory.barbell[unit];
+    const halfQuantity = modQuantity(availablePlates[unit], 0.5);
+    const plateObjs = expandFromQuantity(halfQuantity);
 
-    const platesArray = this.arrayifyInventoryPlates(plates);
-    const { msg, valid } = this.validateLoad(load, barbell, platesArray);
-
-    if (!valid) toast.error(msg);
+    const { valid, errMsg } = this.validateLoad(load, barbell, plateObjs);
+    if (!valid) toast.error(errMsg);
     else {
-      const { loadSuccess, tooExact, msg, array } = this.calculatePlates(
+      const { success, warn, calcdPlateObjs } = this.calculatePlates(
+        unit,
         load,
         barbell,
-        platesArray
+        plateObjs
       );
-      if (!loadSuccess) toast.error(msg);
-      else {
-        if (tooExact) toast.error(msg);
-        this.setState({ calculatedPlates: array });
-      }
+      if (warn) toast.error(warn);
+      if (success) this.setState({ calculatedPlates: calcdPlateObjs });
     }
   };
 
-  arrayifyInventoryPlates = plateFrequencies => {
-    const array = [];
-    for (let plate of plateFrequencies) {
-      for (let j = plate.quantity / 2; j > 0; --j) {
-        array.push(plate.value);
-      }
-    }
-    return array;
-  };
-
-  validateLoad = (load, barbell, platesOnOneEnd) => {
+  validateLoad = (load, barbell, plateObjs) => {
     if (load < barbell)
-      return { msg: "That's not even the bar!", valid: false };
-
-    const totalWeightAvailable =
-      barbell + platesOnOneEnd.reduce((acc, cur) => acc + cur, 0) * 2;
-
-    if (load > totalWeightAvailable)
       return {
-        msg: "Your inventory doesn't work with that weight",
+        errMsg: "That's not even the bar!",
+        valid: false
+      };
+
+    const totalWeightAvail =
+      barbell + 2 * plateObjs.reduce((prv, cur) => prv + cur.value, 0);
+
+    if (load > totalWeightAvail)
+      return {
+        errMsg: "Your inventory doesn't work with that weight",
         valid: false
       };
 
@@ -179,42 +195,46 @@ class App extends Component {
    * side of a barbell in order to meet a target load.
    * @param {Number} targetLoad Weight to load onto barbell
    * @param {Number} barbell Weight of the barbell
-   * @param {Array} platesArray array of available plate weights.
+   * @param {Array} plateObjs array of weight value and color pairs.
    */
-  calculatePlates = (targetLoad, barbell, platesArray) => {
+  calculatePlates = (unit, targetLoad, barbell, plateObjs) => {
     let workingLoad = targetLoad - barbell;
-    if (workingLoad === 0) {
-      // Target load equals barbell weight.
-      return { loadSuccess: true, msg: 'Just the bar', array: [] };
-    }
-    /* Only working with loading one side of the barbell. Presumably, each side
-       will be loaded identically. */
+    if (workingLoad === 0)
+      return {
+        success: true,
+        warn: 'Just the bar',
+        calcdPlateObjs: []
+      };
+
+    /* Showing how to load one side of the barbell. Presumably, both sides are
+       identical. */
     workingLoad /= 2;
-    let calculatedPlates = [];
-    for (let plate of platesArray) {
-      if (workingLoad >= plate) {
-        calculatedPlates.push(plate);
-        if (calculatedPlates.length > MAX_PLATES)
-          return { msg: 'Not enough room on the bar!' };
-        workingLoad -= plate;
+    let calcdPlateObjs = [];
+
+    for (let plate of plateObjs) {
+      if (workingLoad >= plate.value) {
+        calcdPlateObjs.push(plate);
+        if (calcdPlateObjs.length > MAX_PLATES)
+          return {
+            success: false,
+            warn: 'Not enough room on the bar!'
+          };
+        workingLoad -= plate.value;
       }
     }
-    if (workingLoad !== 0) {
-      const sum =
-        barbell + 2 * calculatedPlates.reduce((prev, cur) => prev + cur, 0);
 
+    if (workingLoad !== 0) {
       return {
-        loadSuccess: true,
-        tooExact: true,
-        msg: `Load is too exact—${
-          calculatedPlates.length === 0
-            ? 'Using just the bar'
-            : `Loaded ${sum} instead`
-        }`,
-        array: calculatedPlates
+        success: true,
+        warn: `${workingLoad * 2} ${unit} has been rounded off.`,
+        calcdPlateObjs
       };
     }
-    return { loadSuccess: true, array: calculatedPlates };
+    return {
+      success: true,
+      warn: `${targetLoad} ${unit} loaded!`,
+      calcdPlateObjs
+    };
   };
 }
 

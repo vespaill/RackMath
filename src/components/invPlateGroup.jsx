@@ -6,7 +6,7 @@ const InvPlateGroup = ({ value, quantity, bgColor, onClick }) => {
       <a
         href="#0"
         onClick={() => onClick(value)}
-        className={'plate-group__plate' + (quantity ? bgColor : '')}
+        className={'plate-group__plate' + (quantity ? ' bg-' + bgColor : '')}
       >
         <span className="center-vertically">{value}</span>
       </a>

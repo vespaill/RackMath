@@ -9,7 +9,7 @@ const loadForm = props => {
         <FormControl
           className="weight-input__form mb-3"
           type="number"
-          name="load"
+          name="loadInput"
           placeholder="Enter Weight"
           aria-label="weight"
         />
