@@ -1,7 +1,6 @@
 .load {
   position: absolute;
-  bottom: 10%;
-  margin-bottom: 150px;
+  bottom: 235px;
   margin-left: 10px;
   z-index: -10;
 }
@@ -21,7 +20,7 @@
   color: white;
   position: absolute;
   top: -35%;
-  left: 9975px;
+  left: 9980px;
 }
 
 .load__barbell--sleeve-threshold {
@@ -35,17 +34,14 @@
 }
 
 .plate-container {
-  margin-right: 32px;
-  position: relative;
-  display: inline-block;
+  position: absolute;
 }
 
 .plate-container__plate {
   width: 30px;
-  background-color: black;
 }
 
 .plate-container__plate--text {
-  font-size: 1.25rem;
+  font-size: 1rem;
   color: white;
 }
