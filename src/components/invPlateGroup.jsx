@@ -3,13 +3,12 @@ import React from 'react';
 const InvPlateGroup = ({ value, quantity, bgColor, onClick }) => {
   return (
     <div className="plate-group text-center">
-      <a
-        href="#0"
+      <button
         onClick={() => onClick(value)}
         className={'plate-group__plate' + (quantity ? ' bg-' + bgColor : '')}
       >
         <span className="center-vertically">{value}</span>
-      </a>
+      </button>
       <div
         className="plate-group__quantity"
         style={{ opacity: quantity ? '100%' : '0' }}

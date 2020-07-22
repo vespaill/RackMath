@@ -1,5 +1,5 @@
 {
-  "name": "rackmath",
+  "name": "barbell_loader",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -40,5 +40,5 @@
   "devDependencies": {
     "gh-pages": "^3.1.0"
   },
-  "homepage": "http://vespaill.github.io/rackmath"
+  "homepage": "http://vespaill.github.io/barbell_loader"
 }

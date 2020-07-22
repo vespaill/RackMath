@@ -6,6 +6,7 @@ import NavBarBottom from './components/navBarBottom';
 import Inventory from './components/inventory';
 import NotFound from './components/common/notFound';
 import LoadPlateCalc from './components/loadPlateCalc';
+import About from './components/about';
 import { modQuantity, expandFromQuantity } from './utils/inventory';
 import { calcBgColor } from './utils/calcBgColor';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -90,6 +91,7 @@ class App extends Component {
 
   render() {
     const { unit, barbell } = this.state.inventory;
+    const baseUrl = '/barbell-loader';
     return (
       <>
         <Container style={{ paddingBottom: '70px' }}>
@@ -103,7 +105,7 @@ class App extends Component {
           />
           <Switch>
             <Route
-              path="/rackmath"
+              path={`${baseUrl}/home`}
               render={() => (
                 <LoadPlateCalc
                   unit={unit}
@@ -114,7 +116,7 @@ class App extends Component {
               )}
             />
             <Route
-              path="/inventory"
+              path={`${baseUrl}/inventory`}
               render={() => (
                 <Inventory
                   data={this.state.inventory}
@@ -123,9 +125,11 @@ class App extends Component {
                 />
               )}
             />
-            <Route path="/not-found" component={NotFound} />
-            <Redirect from="/" exact to="/rackmath" />
-            <Redirect to="/not-found" />
+            <Route path={`${baseUrl}/about`} component={About}></Route>
+            <Route path={`${baseUrl}/not-found`} component={NotFound} />
+            <Redirect from="/" exact to={baseUrl} />
+            <Redirect from={baseUrl} exact to={`${baseUrl}/home`} />
+            <Redirect to={`${baseUrl}/not-found`} />
           </Switch>
         </Container>
         <NavBarBottom />
@@ -151,16 +155,13 @@ class App extends Component {
 
   handleLoadSubmit = e => {
     e.preventDefault();
-
     e.currentTarget.firstElementChild.firstElementChild.blur();
-    // console.log($input);
 
     const { value: load } = e.currentTarget.loadInput;
     const { unit, availablePlates } = this.state.inventory;
     const barbell = this.state.inventory.barbell[unit];
     const halfQuantity = modQuantity(availablePlates[unit], 0.5);
     const plateObjs = expandFromQuantity(halfQuantity);
-
     const { valid, errMsg } = this.validateLoad(load, barbell, plateObjs);
 
     if (!valid) toast.error(errMsg);

@@ -9,20 +9,22 @@ const Inventory = props => {
   const { onUnitClick, onPlateGroupClick } = props;
   return (
     <>
-      <Row className="d-flex justify-content-between">
-        <h1>Unit</h1>
-        <a href="#0" onClick={() => onUnitClick()}>
-          <h1>{unit}</h1>
-        </a>
-      </Row>
-      <Row className="d-flex justify-content-between">
-        <h1>Barbell</h1>
-        <h1>{barbell[unit]}</h1>
-      </Row>
-      <Row className="d-flex justify-content-center">
-        <h1>Available plates</h1>
-      </Row>
-      <Row>
+      <div className="container">
+        <Row className="d-flex justify-content-between">
+          <h1>Unit</h1>
+          <button className="unit-btn" variant="danger" onClick={() => onUnitClick()}>
+            {unit}
+          </button>
+        </Row>
+        <Row className="d-flex justify-content-between">
+          <h1>Barbell</h1>
+          <h1>{barbell[unit]}</h1>
+        </Row>
+        <Row className="d-flex justify-content-center">
+          <h1>Available plates</h1>
+        </Row>
+      </div>
+      <Row style={{minWidth: '300px'}}>
         {availablePlates[unit].map((plate, index) => {
           const { value, color, quantity } = plate;
           return (

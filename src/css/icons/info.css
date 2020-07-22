@@ -1,0 +1,35 @@
+@font-face {
+  font-family: 'CMU Typewriter Regular';
+  src: url('../../fonts/CMUTypewriter-Regular.eot');
+  src: url('../../fonts/CMUTypewriter-Regular.eot?#iefix')
+      format('embedded-opentype'),
+    url('../../fonts/CMUTypewriter-Regular.woff2') format('woff2'),
+    url('../../fonts/CMUTypewriter-Regular.woff') format('woff'),
+    url('../../fonts/CMUTypewriter-Regular.ttf') format('truetype'),
+    url('../../fonts/CMUTypewriter-Regular.svg#CMUTypewriter-Regular')
+      format('svg');
+  font-weight: 500;
+  font-style: normal;
+}
+
+a:hover {
+  text-decoration: none !important;
+}
+
+.info-icon {
+  height: 40px;
+  width: 40px;
+  font-family: 'CMU Typewriter Regular';
+  font-size: 1.5rem;
+  color: white;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.info-icon > * {
+  position: absolute;
+  top: 57%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
