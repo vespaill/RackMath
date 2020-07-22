@@ -6,28 +6,27 @@ import Plate from './icons/plate';
 import Info from './icons/info';
 
 const NavBarBottom = () => {
-  const baseUrl = '/barbell-loader'
   return (
     <nav className="bg-red fixed-bottom navbar navbar-dark">
       <div className="navbar-nav navbar-expand">
         <NavLink
           className="nav-item"
           activeClassName="active-class"
-          to={`${baseUrl}/home`}
+          to="/home"
         >
           <Barbell />
         </NavLink>
         <NavLink
           className="nav-item"
           activeClassName="active-class"
-          to={`${baseUrl}/inventory`}
+          to="/inventory"
         >
           <Plate />
         </NavLink>
         <NavLink
           className="nav-item"
           activeClassName="active-class"
-          to={`${baseUrl}/about`}
+          to="/about"
         >
           <Info />
         </NavLink>

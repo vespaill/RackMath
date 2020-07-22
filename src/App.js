@@ -91,7 +91,6 @@ class App extends Component {
 
   render() {
     const { unit, barbell } = this.state.inventory;
-    const baseUrl = '/barbell-loader';
     return (
       <>
         <Container style={{ paddingBottom: '70px' }}>
@@ -105,7 +104,7 @@ class App extends Component {
           />
           <Switch>
             <Route
-              path={`${baseUrl}/home`}
+              path="/home"
               render={() => (
                 <LoadPlateCalc
                   unit={unit}
@@ -116,7 +115,7 @@ class App extends Component {
               )}
             />
             <Route
-              path={`${baseUrl}/inventory`}
+              path="/inventory"
               render={() => (
                 <Inventory
                   data={this.state.inventory}
@@ -125,11 +124,10 @@ class App extends Component {
                 />
               )}
             />
-            <Route path={`${baseUrl}/about`} component={About}></Route>
-            <Route path={`${baseUrl}/not-found`} component={NotFound} />
-            <Redirect from="/" exact to={baseUrl} />
-            <Redirect from={baseUrl} exact to={`${baseUrl}/home`} />
-            <Redirect to={`${baseUrl}/not-found`} />
+            <Route path="/about" component={About}></Route>
+            <Route path="/not-found" component={NotFound} />
+            <Redirect from="/" exact to="/home" />
+            <Redirect to="/not-found" />
           </Switch>
         </Container>
         <NavBarBottom />

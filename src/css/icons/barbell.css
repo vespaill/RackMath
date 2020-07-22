@@ -30,6 +30,7 @@
 }
 
 .barbell__weights > * > * {
+  border-radius: 15%;
   position: absolute;
   width: 2.5px;
   background-color: #fff;
