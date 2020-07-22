@@ -12,6 +12,7 @@ const loadForm = props => {
           name="loadInput"
           placeholder="Enter Weight"
           aria-label="weight"
+          onFocus={e => { e.currentTarget.value = ''; }}
         />
         <InputGroup.Append>
           <InputGroup.Text className="weight-input__text">

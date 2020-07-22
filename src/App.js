@@ -7,12 +7,12 @@ import Inventory from './components/inventory';
 import NotFound from './components/common/notFound';
 import LoadPlateCalc from './components/loadPlateCalc';
 import { modQuantity, expandFromQuantity } from './utils/inventory';
-import { toKg } from './utils/toKg';
 import { calcBgColor } from './utils/calcBgColor';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './css/App.css';
 import './css/utils.css';
+import './css/toastify.css';
 
 const MAX_PLATES = 8;
 
@@ -22,7 +22,7 @@ class App extends Component {
       unit: 'lbs',
       barbell: {
         lbs: 45,
-        kg: toKg(45)
+        kg: 20
       },
       availablePlates: {
         lbs: [
@@ -134,7 +134,7 @@ class App extends Component {
   }
 
   handleUnitClick = () => {
-    let inventory = {...this.state.inventory};
+    let inventory = { ...this.state.inventory };
     if (inventory.unit === 'lbs') inventory.unit = 'kg';
     else inventory.unit = 'lbs';
     this.setState({ inventory });
@@ -152,6 +152,9 @@ class App extends Component {
   handleLoadSubmit = e => {
     e.preventDefault();
 
+    e.currentTarget.firstElementChild.firstElementChild.blur();
+    // console.log($input);
+
     const { value: load } = e.currentTarget.loadInput;
     const { unit, availablePlates } = this.state.inventory;
     const barbell = this.state.inventory.barbell[unit];
@@ -159,15 +162,19 @@ class App extends Component {
     const plateObjs = expandFromQuantity(halfQuantity);
 
     const { valid, errMsg } = this.validateLoad(load, barbell, plateObjs);
+
     if (!valid) toast.error(errMsg);
     else {
-      const { success, warn, calcdPlateObjs } = this.calculatePlates(
-        unit,
-        load,
-        barbell,
-        plateObjs
-      );
-      if (warn) toast.error(warn);
+      const {
+        success,
+        warn: { msg, severity },
+        calcdPlateObjs
+      } = this.calculatePlates(unit, load, barbell, plateObjs);
+
+      if (severity === 'low') toast.success(msg);
+      else if (severity === 'med') toast.warn(msg);
+      else if (severity === 'high') toast.error(msg);
+
       if (success) this.setState({ calculatedPlates: calcdPlateObjs });
     }
   };
@@ -203,7 +210,7 @@ class App extends Component {
     if (workingLoad === 0)
       return {
         success: true,
-        warn: 'Just the bar',
+        warn: { msg: 'Just the bar', severity: 'low' },
         calcdPlateObjs: []
       };
 
@@ -218,7 +225,7 @@ class App extends Component {
         if (calcdPlateObjs.length > MAX_PLATES)
           return {
             success: false,
-            warn: 'Not enough room on the bar!'
+            warn: { msg: 'Not enough room on the bar!', severity: 'high' }
           };
         workingLoad -= plate.value;
       }
@@ -227,13 +234,16 @@ class App extends Component {
     if (workingLoad !== 0) {
       return {
         success: true,
-        warn: `${workingLoad * 2} ${unit} has been rounded off.`,
+        warn: {
+          msg: `${workingLoad * 2} ${unit} has been rounded off.`,
+          severity: 'med'
+        },
         calcdPlateObjs
       };
     }
     return {
       success: true,
-      warn: `${targetLoad} ${unit} loaded!`,
+      warn: { msg: `${targetLoad} ${unit} loaded!`, severity: 'low' },
       calcdPlateObjs
     };
   };

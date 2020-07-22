@@ -1,0 +1,19 @@
+/* .Toastify__toast-container {
+  width: 320px;
+} */
+/* .Toastify__toast--default {
+  background: #fff;
+  color: #aaa;
+} */
+/* .Toastify__toast--info {
+  background: #3498db;
+} */
+.Toastify__toast--success {
+  background: #5cb85c;
+}
+.Toastify__toast--warning {
+  background: #f0ad4e;
+}
+.Toastify__toast--error {
+  background: #d9534f;
+}
