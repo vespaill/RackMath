@@ -1,10 +1,14 @@
 import React from 'react';
 
-const InvPlateGroup = ({ value, quantity, bgColor, onClick }) => {
+const InvPlateGroup = props => {
+  const { value, quantity, bgColor, onPress, onRelease } = props;
   return (
     <div className="plate-group text-center">
       <button
-        onClick={() => onClick(value)}
+        onTouchStart={() => onPress(value)}
+        onMouseDown={() => onPress(value)}
+        onTouchEnd={() => onRelease(value)}
+        onMouseUp={() => onRelease(value)}
         className={'plate-group__plate' + (quantity ? ' bg-' + bgColor : '')}
       >
         <span className="center-vertically">{value}</span>

@@ -15,7 +15,7 @@ import './css/App.css';
 import './css/utils.css';
 import './css/toastify.css';
 
-const MAX_PLATES = 8;
+const MAX_PLATES = 16;
 
 class App extends Component {
   state = {
@@ -31,17 +31,17 @@ class App extends Component {
           { value: 65, quantity: 0 },
           { value: 55, quantity: 0 },
           { value: 50, quantity: 0 },
-          { value: 45, quantity: 8 },
+          { value: 45, quantity: MAX_PLATES },
           { value: 35, quantity: 0 },
           { value: 30, quantity: 0 },
-          { value: 25, quantity: 8 },
+          { value: 25, quantity: MAX_PLATES },
           { value: 20, quantity: 0 },
           { value: 15, quantity: 0 },
           { value: 12.5, quantity: 0 },
-          { value: 10, quantity: 8 },
+          { value: 10, quantity: MAX_PLATES },
           { value: 7.5, quantity: 0 },
-          { value: 5, quantity: 8 },
-          { value: 2.5, quantity: 8 },
+          { value: 5, quantity: MAX_PLATES },
+          { value: 2.5, quantity: MAX_PLATES },
           { value: 1.25, quantity: 0 },
           { value: 1, quantity: 0 },
           { value: 0.75, quantity: 0 },
@@ -54,17 +54,17 @@ class App extends Component {
           { value: 35, quantity: 0 },
           { value: 30, quantity: 0 },
           { value: 25, quantity: 0 },
-          { value: 20, quantity: 8 },
+          { value: 20, quantity: MAX_PLATES },
           { value: 15, quantity: 0 },
           { value: 12.5, quantity: 0 },
-          { value: 10, quantity: 8 },
+          { value: 10, quantity: MAX_PLATES },
           { value: 7.5, quantity: 0 },
-          { value: 5, quantity: 8 },
+          { value: 5, quantity: MAX_PLATES },
           { value: 3, quantity: 0 },
-          { value: 2.5, quantity: 8 },
+          { value: 2.5, quantity: MAX_PLATES },
           { value: 2, quantity: 0 },
           { value: 1.5, quantity: 0 },
-          { value: 1.25, quantity: 8 },
+          { value: 1.25, quantity: MAX_PLATES },
           { value: 1, quantity: 0 },
           { value: 0.75, quantity: 0 },
           { value: 0.5, quantity: 0 },
@@ -119,6 +119,9 @@ class App extends Component {
               render={() => (
                 <Inventory
                   data={this.state.inventory}
+                  onPlateGroupClick={this.handlePlateGroupClick}
+                  onPlateGroupPress={this.handlePlateGroupPress}
+                  onPlateGroupRelease={this.handlePlateGroupRelease}
                   onUnitClick={this.handleUnitClick}
                   onPlateGroupClick={this.handlePlateGroupClick}
                 />
@@ -146,9 +149,26 @@ class App extends Component {
     const { unit } = this.state.inventory;
     const original = { ...this.state.inventory.availablePlates };
     const index = original[unit].findIndex(element => element.value === value);
-    original[unit][index].quantity = (original[unit][index].quantity + 2) % 10;
-
+    original[unit][index].quantity =
+      ((original[unit][index].quantity + 2) % (MAX_PLATES + 2)) ;
     this.setState({ availablePlates: original });
+  };
+
+  handlePlateGroupPress = value => {
+    this.handlePlateGroupClick(value);
+    this.buttonPressTimer = setTimeout(() => {
+      const { unit } = this.state.inventory;
+      const original = { ...this.state.inventory.availablePlates };
+      const index = original[unit].findIndex(
+        element => element.value === value
+      );
+      original[unit][index].quantity = 0;
+      this.setState({ availablePlates: original });
+    }, 300);
+  };
+
+  handlePlateGroupRelease = value => {
+    clearTimeout(this.buttonPressTimer);
   };
 
   handleLoadSubmit = e => {

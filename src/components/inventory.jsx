@@ -6,7 +6,7 @@ import '../css/inventory.css';
 
 const Inventory = props => {
   const { unit, barbell, availablePlates } = props.data;
-  const { onUnitClick, onPlateGroupClick } = props;
+  const { onUnitClick, onPlateGroupPress, onPlateGroupRelease } = props;
   return (
     <>
       <div className="container">
@@ -30,7 +30,8 @@ const Inventory = props => {
           return (
             <Col key={index} xs={4}>
               <InvPlateGroup
-                onClick={onPlateGroupClick}
+                onPress={onPlateGroupPress}
+                onRelease={onPlateGroupRelease}
                 value={value}
                 quantity={quantity}
                 bgColor={color}
