@@ -119,11 +119,9 @@ class App extends Component {
               render={() => (
                 <Inventory
                   data={this.state.inventory}
-                  onPlateGroupClick={this.handlePlateGroupClick}
                   onPlateGroupPress={this.handlePlateGroupPress}
                   onPlateGroupRelease={this.handlePlateGroupRelease}
                   onUnitClick={this.handleUnitClick}
-                  onPlateGroupClick={this.handlePlateGroupClick}
                 />
               )}
             />

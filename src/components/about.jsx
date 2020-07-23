@@ -9,7 +9,7 @@ const About = () => {
       }}
     >
       Barbell Loader was inspired by{' '}
-      <a href="https://www.happyliftingco.com/pages/rackmath">Rack Math</a> and
+      <a target="#blank" href="https://www.happyliftingco.com/pages/rackmath">RackMath</a> and
       built from scratch by Victor Espaillat with the help of React.js and
       Bootstrap.
     </div>
