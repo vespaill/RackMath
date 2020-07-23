@@ -12,6 +12,8 @@ const loadForm = props => {
           name="loadInput"
           placeholder="Enter Weight"
           aria-label="weight"
+          min="0"
+          step="0.5"
           onFocus={e => { e.currentTarget.value = ''; }}
         />
         <InputGroup.Append>
@@ -21,7 +23,7 @@ const loadForm = props => {
         </InputGroup.Append>
       </InputGroup>
       <Button className="mx-auto d-block" variant="dark" type="submit">
-        Submit
+        Load
       </Button>
     </Form>
   );

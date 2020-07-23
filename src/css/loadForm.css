@@ -4,11 +4,17 @@ Form {
   width: 50%;
 }
 
-input:hover,
-input:active {
-  outline: 0px !important;
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
-  box-shadow: none !important;
+  margin: 0;
+}
+
+.form-control:focus {
+  /* outline: 0px !important; */
+  -webkit-appearance: none;
+  box-shadow: none;
+  border-bottom: 1px black solid;
 }
 
 .weight-input__form {
@@ -26,4 +32,5 @@ input:active {
   background-color: transparent;
   color: #000;
   border: none;
+  margin-bottom: 16px;
 }

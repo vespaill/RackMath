@@ -15,7 +15,7 @@ import './css/App.css';
 import './css/utils.css';
 import './css/toastify.css';
 
-const MAX_PLATES = 16;
+const MAX_PLATES = 8;
 
 class App extends Component {
   state = {
@@ -119,8 +119,9 @@ class App extends Component {
               render={() => (
                 <Inventory
                   data={this.state.inventory}
-                  onPlateGroupPress={this.handlePlateGroupPress}
-                  onPlateGroupRelease={this.handlePlateGroupRelease}
+                  onPlateGroupClick={this.handlePlateGroupClick}
+                  // onPlateGroupPress={this.handlePlateGroupPress}
+                  // onPlateGroupRelease={this.handlePlateGroupRelease}
                   onUnitClick={this.handleUnitClick}
                 />
               )}
@@ -145,28 +146,10 @@ class App extends Component {
 
   handlePlateGroupClick = value => {
     const { unit } = this.state.inventory;
-    const original = { ...this.state.inventory.availablePlates };
-    const index = original[unit].findIndex(element => element.value === value);
-    original[unit][index].quantity =
-      ((original[unit][index].quantity + 2) % (MAX_PLATES + 2)) ;
-    this.setState({ availablePlates: original });
-  };
-
-  handlePlateGroupPress = value => {
-    this.handlePlateGroupClick(value);
-    this.buttonPressTimer = setTimeout(() => {
-      const { unit } = this.state.inventory;
-      const original = { ...this.state.inventory.availablePlates };
-      const index = original[unit].findIndex(
-        element => element.value === value
-      );
-      original[unit][index].quantity = 0;
-      this.setState({ availablePlates: original });
-    }, 300);
-  };
-
-  handlePlateGroupRelease = value => {
-    clearTimeout(this.buttonPressTimer);
+    const cpy = { ...this.state.inventory.availablePlates };
+    const i = cpy[unit].findIndex(element => element.value === value);
+    cpy[unit][i].quantity = (cpy[unit][i].quantity + 2) % (MAX_PLATES + 2);
+    this.setState({ availablePlates: cpy });
   };
 
   handleLoadSubmit = e => {
@@ -180,8 +163,10 @@ class App extends Component {
     const plateObjs = expandFromQuantity(halfQuantity);
     const { valid, errMsg } = this.validateLoad(load, barbell, plateObjs);
 
-    if (!valid) toast.error(errMsg);
-    else {
+    if (!valid) {
+      this.setState({ calculatedPlates: [] });
+      toast.error(errMsg);
+    } else {
       const {
         success,
         warn: { msg, severity },
