@@ -1,8 +1,9 @@
 import React from 'react';
-import fire from '../../fire.png';
+import fireIcon from '../../fire.png'
+import '../../css/icons/fire.css'
 
 const Fire = () => {
-  return <img style={{height: "40px"}} src={fire} />;
+  return <img className="fire-icon" src={fireIcon} alt="fire" />;
 };
 
 export default Fire;

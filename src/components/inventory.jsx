@@ -5,9 +5,16 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../css/inventory.css';
 
 const Inventory = props => {
-  const { unit, barbell, availablePlates } = props.data;
-  const { onUnitClick, onPlateGroupClick } = props;
-  // const { onPlateGroupPress, onPlateGroupRelease } = props;
+  const {
+    unit,
+    barbell,
+    availablePlates,
+    onUnitClick,
+    onPlateGroupClick
+  } = props;
+
+  console.log(props);
+
   return (
     <>
       <div className="container">
@@ -36,8 +43,6 @@ const Inventory = props => {
             <Col key={index} xs={4}>
               <InvPlateGroup
                 onClick={onPlateGroupClick}
-                // onPress={onPlateGroupPress}
-                // onRelease={onPlateGroupRelease}
                 value={value}
                 quantity={quantity}
                 bgColor={color}

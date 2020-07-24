@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { Route, Switch, Redirect, useHistory, history } from 'react-router-dom';
+import { Route, Switch, Redirect } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import { Container } from 'react-bootstrap';
 import NavBarBottom from './components/navBarBottom';
 import Inventory from './components/inventory';
 import NotFound from './components/common/notFound';
@@ -26,85 +25,91 @@ const roundToNearestFive = value => {
 
 class App extends Component {
   state = {
-    inventory: {
-      unit: 'lbs',
-      barbell: {
-        lbs: 45,
-        kg: 20
-      },
-      availablePlates: {
-        lbs: [
-          { value: 100, quantity: 0 },
-          { value: 65, quantity: 0 },
-          { value: 55, quantity: 0 },
-          { value: 50, quantity: 0 },
-          { value: 45, quantity: MAX_PLATES },
-          { value: 35, quantity: 0 },
-          { value: 30, quantity: 0 },
-          { value: 25, quantity: MAX_PLATES },
-          { value: 20, quantity: 0 },
-          { value: 15, quantity: 0 },
-          { value: 12.5, quantity: 0 },
-          { value: 10, quantity: MAX_PLATES },
-          { value: 7.5, quantity: 0 },
-          { value: 5, quantity: MAX_PLATES },
-          { value: 2.5, quantity: MAX_PLATES },
-          { value: 1.25, quantity: 0 },
-          { value: 1, quantity: 0 },
-          { value: 0.75, quantity: 0 },
-          { value: 0.5, quantity: 0 },
-          { value: 0.25, quantity: 0 }
-        ],
-        kg: [
-          { value: 50, quantity: 0 },
-          { value: 45, quantity: 0 },
-          { value: 35, quantity: 0 },
-          { value: 30, quantity: 0 },
-          { value: 25, quantity: 0 },
-          { value: 20, quantity: MAX_PLATES },
-          { value: 15, quantity: 0 },
-          { value: 12.5, quantity: 0 },
-          { value: 10, quantity: MAX_PLATES },
-          { value: 7.5, quantity: 0 },
-          { value: 5, quantity: MAX_PLATES },
-          { value: 3, quantity: 0 },
-          { value: 2.5, quantity: MAX_PLATES },
-          { value: 2, quantity: 0 },
-          { value: 1.5, quantity: 0 },
-          { value: 1.25, quantity: MAX_PLATES },
-          { value: 1, quantity: 0 },
-          { value: 0.75, quantity: 0 },
-          { value: 0.5, quantity: 0 },
-          { value: 0.25, quantity: 0 }
-        ]
-      }
+    // Inventory related
+    unit: 'lbs',
+    barbell: {
+      lbs: 45,
+      kg: 20
+    },
+    availablePlates: {
+      lbs: [
+        { value: 100, quantity: 0 },
+        { value: 65, quantity: 0 },
+        { value: 55, quantity: 0 },
+        { value: 50, quantity: 0 },
+        { value: 45, quantity: MAX_PLATES },
+        { value: 35, quantity: 0 },
+        { value: 30, quantity: 0 },
+        { value: 25, quantity: MAX_PLATES },
+        { value: 20, quantity: 0 },
+        { value: 15, quantity: 0 },
+        { value: 12.5, quantity: 0 },
+        { value: 10, quantity: MAX_PLATES },
+        { value: 7.5, quantity: 0 },
+        { value: 5, quantity: MAX_PLATES },
+        { value: 2.5, quantity: MAX_PLATES },
+        { value: 1.25, quantity: 0 },
+        { value: 1, quantity: 0 },
+        { value: 0.75, quantity: 0 },
+        { value: 0.5, quantity: 0 },
+        { value: 0.25, quantity: 0 }
+      ],
+      kg: [
+        { value: 50, quantity: 0 },
+        { value: 45, quantity: 0 },
+        { value: 35, quantity: 0 },
+        { value: 30, quantity: 0 },
+        { value: 25, quantity: 0 },
+        { value: 20, quantity: MAX_PLATES },
+        { value: 15, quantity: 0 },
+        { value: 12.5, quantity: 0 },
+        { value: 10, quantity: MAX_PLATES },
+        { value: 7.5, quantity: 0 },
+        { value: 5, quantity: MAX_PLATES },
+        { value: 3, quantity: 0 },
+        { value: 2.5, quantity: MAX_PLATES },
+        { value: 2, quantity: 0 },
+        { value: 1.5, quantity: 0 },
+        { value: 1.25, quantity: MAX_PLATES },
+        { value: 1, quantity: 0 },
+        { value: 0.75, quantity: 0 },
+        { value: 0.5, quantity: 0 },
+        { value: 0.25, quantity: 0 }
+      ]
     },
     calculatedPlates: [],
-    warmUp: {
-      workingWeight: -1,
-      sets: []
-    }
+
+    // Warm Up related
+    percentages: [0.5, 0.6, 0.7, 0.8, 0.9],
+    workingWeight: -1,
+    warmUpSets: []
   };
 
   componentDidMount() {
     let availablePlates = {};
 
     ['lbs', 'kg'].forEach(unit => {
-      availablePlates[unit] = this.state.inventory.availablePlates[
+      availablePlates[unit] = this.state.availablePlates[
         unit
       ].map((plate, index) => ({ ...plate, color: calcBgColor(index) }));
     });
 
-    const { inventory } = this.state;
-    inventory.availablePlates = availablePlates;
-    this.setState({ inventory });
+    this.setState({ availablePlates });
   }
 
   render() {
-    const { unit, barbell } = this.state.inventory;
+    const {
+      unit,
+      barbell,
+      availablePlates,
+      workingWeight,
+      warmUpSets
+    } = this.state;
+    const inventoryData = { unit, barbell, availablePlates };
+    const warmUpData = { unit, workingWeight, warmUpSets };
     return (
       <>
-        <div className='container' style={{ paddingBottom: '70px' }}>
+        <div className="container" style={{ paddingBottom: '70px' }}>
           <ToastContainer
             limit={1}
             autoClose={2000}
@@ -129,7 +134,7 @@ class App extends Component {
               path="/inventory"
               render={() => (
                 <Inventory
-                  data={this.state.inventory}
+                  {...inventoryData}
                   onPlateGroupClick={this.handlePlateGroupClick}
                   onUnitClick={this.handleUnitClick}
                 />
@@ -139,8 +144,7 @@ class App extends Component {
               path="/warmup"
               render={() => (
                 <WarmUpSetCalc
-                  data={this.state.warmUp}
-                  unit={this.state.inventory.unit}
+                  {...warmUpData}
                   onSubmit={this.handleWorkingWeightSubmit}
                   onLoad={this.handleLoad}
                 />
@@ -158,23 +162,21 @@ class App extends Component {
   }
 
   handleUnitClick = () => {
-    let inventory = { ...this.state.inventory };
-    if (inventory.unit === 'lbs') inventory.unit = 'kg';
-    else inventory.unit = 'lbs';
+    let { unit } = this.state;
+    if (unit === 'lbs') unit = 'kg';
+    else unit = 'lbs';
 
     this.setState({
-      inventory,
-      calculatedPlates: [],
-      warmUp: {
-        workingWeight: -1,
-        sets: []
-      }
+      unit,
+      calculatedPlates: [], // reset calculated plates
+      workingWeight: -1, // reset working weight
+      warmUpSets: [] // reset working weight
     });
   };
 
   handlePlateGroupClick = value => {
-    const { unit } = this.state.inventory;
-    const cpy = { ...this.state.inventory.availablePlates };
+    const { unit } = this.state;
+    const cpy = { ...this.state.availablePlates };
     const i = cpy[unit].findIndex(element => element.value === value);
     cpy[unit][i].quantity = (cpy[unit][i].quantity + 2) % (MAX_PLATES + 2);
     this.setState({ availablePlates: cpy });
@@ -182,13 +184,15 @@ class App extends Component {
 
   handleLoadSubmit = e => {
     e.preventDefault();
+    // Blur in order to hide keyboard on mobile.
     e.currentTarget.firstElementChild.firstElementChild.blur();
     this.handleLoad(e.currentTarget.loadInput.value);
+    e.currentTarget.loadInput.value = '';
   };
 
   handleLoad = load => {
-    const { unit, availablePlates } = this.state.inventory;
-    const barbell = this.state.inventory.barbell[unit];
+    const { unit, availablePlates } = this.state;
+    const barbell = this.state.barbell[unit];
     const halfQuantity = modQuantity(availablePlates[unit], 0.5);
     const plateObjs = expandFromQuantity(halfQuantity);
     const { valid, errMsg } = this.validateLoad(load, barbell, plateObjs);
@@ -282,17 +286,20 @@ class App extends Component {
 
   handleWorkingWeightSubmit = e => {
     e.preventDefault();
-    e.currentTarget.firstElementChild.firstElementChild.blur();
+    e.currentTarget.firstElementChild.firstElementChild.blur(); // hide keyboard
     const { value: workingWeight } = e.currentTarget.loadInput;
+    e.currentTarget.loadInput.value = ''; // clear input
 
     if (workingWeight) {
-      const sets = [];
-      for (let percent of [0.6, 0.7, 0.8, 0.9])
-        sets.push([percent, roundToNearestFive(workingWeight * percent)]);
-
-      this.setState({ warmUp: { workingWeight, sets } });
+      const warmUpSets = [];
+      const { percentages } = this.state;
+      percentages.forEach(percent => {
+        warmUpSets.push([percent, roundToNearestFive(workingWeight * percent)]);
+      });
+      this.setState({ workingWeight, warmUpSets });
     } else {
-      this.setState({ warmUp: { workingWeight: -1, sets: [] } });
+      // reset
+      this.setState({ workingWeight: -1, warmUpSets: [] });
     }
   };
 }

@@ -4,7 +4,7 @@ import { Button } from 'react-bootstrap';
 import '../css/setContainer.css';
 
 const SetContainer = props => {
-  const { percentage, load, unit } = props.data;
+  const { unit, load, percentage } = props;
   return (
     <div className="set-container d-flex justify-content-between">
       <div className="percent-container">

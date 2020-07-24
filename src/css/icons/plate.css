@@ -1,10 +1,10 @@
-.plate {
+.plate-icon {
   position: relative;
   width: 40px;
   height: 40px;
 }
 
-.plate > * {
+.plate-icon > * {
   position: absolute;
   top: 50%;
   left: 50%;

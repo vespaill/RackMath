@@ -1,16 +1,20 @@
 .load {
-  position: absolute;
-  bottom: 235px;
+  /* position: absolute; */
+  /* bottom: 235px; */
+  position: relative;
+  height: 400px;
+  width: 100%;
+  min-width: 375px;
   margin-left: 10px;
   z-index: -10;
 }
 
 .load__barbell--shaft {
   position: absolute;
-  top: 65%;
+  top: 50%;
   left: -10000px;
   height: 15px;
-  transform: translateY(-35%);
+  transform: translateY(-50%);
   width: 10280px;
   background-color: gray;
   z-index: -20;
@@ -25,16 +29,17 @@
 
 .load__barbell--sleeve-threshold {
   position: absolute;
-  top: 60%;
+  top: 50%;
   width: 15px;
   height: 30px;
-  transform: translateY(-40%);
+  transform: translateY(-50%);
   background-color: gray;
   z-index: -19;
 }
 
 .plate-container {
   position: absolute;
+  top: 50%;
 }
 
 .plate-container__plate {

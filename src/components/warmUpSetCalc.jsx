@@ -2,11 +2,10 @@ import React from 'react';
 import LoadForm from './loadForm';
 import SetContainer from './setContainer';
 import { Row } from 'react-bootstrap';
-import '../css/warmUpSetCalc.css'
+import '../css/warmUpSetCalc.css';
 
 const WarmUpSetCalc = props => {
-  const { workingWeight, sets } = props.data;
-  const { unit, onSubmit, onLoad } = props;
+  const { workingWeight, warmUpSets, unit, onSubmit, onLoad } = props;
   return (
     <>
       <Row className="d-flex justify-content-center">
@@ -20,19 +19,18 @@ const WarmUpSetCalc = props => {
       />
       <div className="setList-container">
         <div className="setList mx-auto">
-          {sets.map((pair, index) => {
+          {warmUpSets.map((pair, index) => {
             const [percentage, load] = pair;
+            const containerData = { unit, percentage, load };
             return (
-              <SetContainer
-                key={index}
-                data={{ unit, percentage, load }}
-                onClick={onLoad}
-              />
+              <SetContainer key={index} {...containerData} onClick={onLoad} />
             );
           })}
           {workingWeight !== -1 && (
             <SetContainer
-              data={{ unit, percentage: 1, load: workingWeight }}
+              unit={unit}
+              load={workingWeight}
+              percentage={1}
               onClick={onLoad}
             />
           )}
