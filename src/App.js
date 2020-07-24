@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch, Redirect, useHistory, history } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import { Container } from 'react-bootstrap';
 import NavBarBottom from './components/navBarBottom';
 import Inventory from './components/inventory';
 import NotFound from './components/common/notFound';
 import LoadPlateCalc from './components/loadPlateCalc';
+import WarmUpSetCalc from './components/warmUpSetCalc';
 import About from './components/about';
 import { modQuantity, expandFromQuantity } from './utils/inventory';
 import { calcBgColor } from './utils/calcBgColor';
@@ -16,6 +17,12 @@ import './css/utils.css';
 import './css/toastify.css';
 
 const MAX_PLATES = 8;
+
+const roundToNearestFive = value => {
+  const remainder = value % 5;
+  if (remainder >= 2.5) return value - remainder + 5;
+  return value - remainder;
+};
 
 class App extends Component {
   state = {
@@ -72,7 +79,11 @@ class App extends Component {
         ]
       }
     },
-    calculatedPlates: []
+    calculatedPlates: [],
+    warmUp: {
+      workingWeight: -1,
+      sets: []
+    }
   };
 
   componentDidMount() {
@@ -120,12 +131,21 @@ class App extends Component {
                 <Inventory
                   data={this.state.inventory}
                   onPlateGroupClick={this.handlePlateGroupClick}
-                  // onPlateGroupPress={this.handlePlateGroupPress}
-                  // onPlateGroupRelease={this.handlePlateGroupRelease}
                   onUnitClick={this.handleUnitClick}
                 />
               )}
             />
+            <Route
+              path="/warmup"
+              render={() => (
+                <WarmUpSetCalc
+                  data={this.state.warmUp}
+                  unit={this.state.inventory.unit}
+                  onSubmit={this.handleWorkingWeightSubmit}
+                  onLoad={this.handleLoad}
+                />
+              )}
+            ></Route>
             <Route path="/about" component={About}></Route>
             <Route path="/not-found" component={NotFound} />
             <Redirect from="/" exact to="/home" />
@@ -141,7 +161,15 @@ class App extends Component {
     let inventory = { ...this.state.inventory };
     if (inventory.unit === 'lbs') inventory.unit = 'kg';
     else inventory.unit = 'lbs';
-    this.setState({ inventory });
+
+    this.setState({
+      inventory,
+      calculatedPlates: [],
+      warmUp: {
+        workingWeight: -1,
+        sets: []
+      }
+    });
   };
 
   handlePlateGroupClick = value => {
@@ -155,8 +183,10 @@ class App extends Component {
   handleLoadSubmit = e => {
     e.preventDefault();
     e.currentTarget.firstElementChild.firstElementChild.blur();
+    this.handleLoad(e.currentTarget.loadInput.value);
+  };
 
-    const { value: load } = e.currentTarget.loadInput;
+  handleLoad = load => {
     const { unit, availablePlates } = this.state.inventory;
     const barbell = this.state.inventory.barbell[unit];
     const halfQuantity = modQuantity(availablePlates[unit], 0.5);
@@ -248,6 +278,21 @@ class App extends Component {
       warn: { msg: `${targetLoad} ${unit} loaded!`, severity: 'low' },
       calcdPlateObjs
     };
+  };
+
+  handleWorkingWeightSubmit = e => {
+    e.preventDefault();
+    const { value: workingWeight } = e.currentTarget.loadInput;
+
+    if (workingWeight) {
+      const sets = [];
+      for (let percent of [0.6, 0.7, 0.8, 0.9])
+        sets.push([percent, roundToNearestFive(workingWeight * percent)]);
+
+      this.setState({ warmUp: { workingWeight, sets } });
+    } else {
+      this.setState({ warmUp: { workingWeight: -1, sets: [] } });
+    }
   };
 }
 

@@ -5,7 +5,12 @@ import LoadForm from './loadForm';
 const LoadPlateCalc = props => {
   return (
     <>
-      <LoadForm unit={props.unit} onSubmit={props.onSubmit} />
+      <LoadForm
+        unit={props.unit}
+        onSubmit={props.onSubmit}
+        placeholder="Enter Weight"
+        btnText="Load"
+      />
       <LoadDiagram
         barbell={props.barbell}
         calculatedPlates={props.calculatedPlates}

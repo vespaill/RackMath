@@ -2,7 +2,7 @@ import React from 'react';
 import { Form, InputGroup, FormControl, Button } from 'react-bootstrap';
 import '../css/loadForm.css';
 
-const loadForm = props => {
+const LoadForm = props => {
   return (
     <Form onSubmit={e => props.onSubmit(e)}>
       <InputGroup>
@@ -10,7 +10,7 @@ const loadForm = props => {
           className="weight-input__form mb-3"
           type="number"
           name="loadInput"
-          placeholder="Enter Weight"
+          placeholder={props.placeholder}
           aria-label="weight"
           min="0"
           step="0.5"
@@ -23,10 +23,10 @@ const loadForm = props => {
         </InputGroup.Append>
       </InputGroup>
       <Button className="mx-auto d-block" variant="dark" type="submit">
-        Load
+        {props.btnText}
       </Button>
     </Form>
   );
 };
 
-export default loadForm;
+export default LoadForm;

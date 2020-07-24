@@ -8,15 +8,6 @@
   padding: 0.25rem 0.5rem;
 }
 
-h1 {
-  font-size: 2rem;
-  text-align: center;
-  font-family: 'Roboto';
-}
-
-.container {
-  margin-top: 1rem;
-}
 .container > * > * {
   margin-top: auto;
   margin-bottom: auto;
