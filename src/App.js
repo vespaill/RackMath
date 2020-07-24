@@ -104,7 +104,7 @@ class App extends Component {
     const { unit, barbell } = this.state.inventory;
     return (
       <>
-        <Container style={{ paddingBottom: '70px' }}>
+        <div className='container' style={{ paddingBottom: '70px' }}>
           <ToastContainer
             limit={1}
             autoClose={2000}
@@ -151,7 +151,7 @@ class App extends Component {
             <Redirect from="/" exact to="/home" />
             <Redirect to="/not-found" />
           </Switch>
-        </Container>
+        </div>
         <NavBarBottom />
       </>
     );
@@ -282,6 +282,7 @@ class App extends Component {
 
   handleWorkingWeightSubmit = e => {
     e.preventDefault();
+    e.currentTarget.firstElementChild.firstElementChild.blur();
     const { value: workingWeight } = e.currentTarget.loadInput;
 
     if (workingWeight) {

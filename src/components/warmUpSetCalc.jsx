@@ -18,23 +18,25 @@ const WarmUpSetCalc = props => {
         placeholder="Working Weight"
         btnText="Calculate"
       />
-      <div className="setList mx-auto">
-        {sets.map((pair, index) => {
-          const [percentage, load] = pair;
-          return (
+      <div className="setList-container">
+        <div className="setList mx-auto">
+          {sets.map((pair, index) => {
+            const [percentage, load] = pair;
+            return (
+              <SetContainer
+                key={index}
+                data={{ unit, percentage, load }}
+                onClick={onLoad}
+              />
+            );
+          })}
+          {workingWeight !== -1 && (
             <SetContainer
-              key={index}
-              data={{ unit, percentage, load }}
+              data={{ unit, percentage: 1, load: workingWeight }}
               onClick={onLoad}
             />
-          );
-        })}
-        {workingWeight !== -1 && (
-          <SetContainer
-            data={{ unit, percentage: 1, load: workingWeight }}
-            onClick={onLoad}
-          />
-        )}
+          )}
+        </div>
       </div>
     </>
   );
