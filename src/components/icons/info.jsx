@@ -6,4 +6,5 @@ const Icon = () => (
     <div>i</div>
   </div>
 );
+
 export default Icon;

@@ -1,12 +1,16 @@
 .load {
   /* position: absolute; */
   /* bottom: 235px; */
-  position: relative;
-  height: 400px;
+  /* position: relative;
+  height: 315px;
   width: 100%;
   min-width: 375px;
   margin-left: 10px;
-  z-index: -10;
+  margin-top: 45px;
+  z-index: -10; */
+  position: relative;
+  left: 10px;
+  top: 200px;
 }
 
 .load__barbell--shaft {

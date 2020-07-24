@@ -102,9 +102,11 @@ class App extends Component {
       unit,
       barbell,
       availablePlates,
+      calculatedPlates,
       workingWeight,
       warmUpSets
     } = this.state;
+    const loaderData = { unit, barbell: barbell[unit], calculatedPlates };
     const inventoryData = { unit, barbell, availablePlates };
     const warmUpData = { unit, workingWeight, warmUpSets };
     return (
@@ -123,9 +125,7 @@ class App extends Component {
               path="/home"
               render={() => (
                 <LoadPlateCalc
-                  unit={unit}
-                  barbell={barbell[unit]}
-                  calculatedPlates={this.state.calculatedPlates}
+                  {...loaderData}
                   onSubmit={this.handleLoadSubmit}
                 />
               )}

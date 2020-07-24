@@ -1,9 +1,3 @@
-/* .active-class,
-.active-class::before,
-.active-class::after {
-  background-color: white;
-} */
-
 .active-class {
   filter: opacity(100%) !important;
   text-decoration: none;
@@ -11,8 +5,4 @@
 
 .nav-item {
   filter: opacity(50%);
-}
-
-.nav-item:not(:last-child) {
-  margin-right: 3rem;
 }

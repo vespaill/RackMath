@@ -8,10 +8,10 @@ const LoadDiagram = props => {
       <div className="load__barbell--shaft">
         <div>{props.barbell}</div>
       </div>
-      <div className="load__barbell--sleeve-threshold"></div>
+      <div className="load__barbell--sleeve-threshold" />
 
-      <div className="load__plate-group ">
-        <div style={{ opacity: '0px' }} className="plate-container"></div>
+      <div className="load__plate-group">
+        <div style={{ opacity: '0px' }} className="plate-container" />
         {props.calculatedPlates.map((plate, index) => (
           <div
             key={index}
@@ -23,7 +23,7 @@ const LoadDiagram = props => {
               style={{
                 height: `${limitPlateHeight(plate.value * 8, 35, 315)}px`
               }}
-            ></div>
+            />
             <div className="plate-container__plate--text center-vertically">
               {plate.value}
             </div>

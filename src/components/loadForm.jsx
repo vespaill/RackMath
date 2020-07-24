@@ -7,7 +7,7 @@ const LoadForm = props => {
     <Form onSubmit={e => props.onSubmit(e)}>
       <InputGroup>
         <FormControl
-          className="weight-input__form mb-3"
+          className="weight-input__form"
           type="number"
           name="loadInput"
           placeholder={props.placeholder}
