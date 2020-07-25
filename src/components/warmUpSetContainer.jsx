@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import '../css/setContainer.css';
+import '../css/warmUpSetContainer.css';
 
-const SetContainer = props => {
+const WarmUpSetContainer = props => {
   const { unit, load, percentage } = props;
   return (
     <div className="set-container d-flex justify-content-between">
@@ -20,4 +20,4 @@ const SetContainer = props => {
   );
 };
 
-export default SetContainer;
+export default WarmUpSetContainer;

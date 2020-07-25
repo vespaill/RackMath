@@ -13,7 +13,7 @@ const LoadPlateCalc = props => {
       />
       <LoadDiagram
         barbell={props.barbell}
-        calculatedPlates={props.calculatedPlates}
+        calcdPlates={props.calcdPlates}
       />
     </>
   );

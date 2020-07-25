@@ -5,26 +5,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../css/inventory.css';
 
 const Inventory = props => {
-  const {
-    unit,
-    barbell,
-    availablePlates,
-    onUnitClick,
-    onPlateGroupClick
-  } = props;
-
-  console.log(props);
+  const { unit, barbell, availPlates, onUnitClick, onPlateGroupClick, onClear } = props;
+  const clearBtnProps = { onClick: onClear, value: 'clear', quantity: -1, bgColor: 'gold' };
 
   return (
     <>
       <div className="container">
         <Row className="d-flex justify-content-between">
           <h1>Unit</h1>
-          <button
-            className="unit-btn"
-            variant="danger"
-            onClick={() => onUnitClick()}
-          >
+          <button className="btn-unit" variant="danger" onClick={() => onUnitClick()}>
             {unit}
           </button>
         </Row>
@@ -37,19 +26,23 @@ const Inventory = props => {
         </Row>
       </div>
       <Row style={{ minWidth: '300px' }}>
-        {availablePlates[unit].map((plate, index) => {
+        {availPlates[unit].map((plate, index) => {
           const { value, color, quantity } = plate;
+          const plateGroupProps = { onClick: onPlateGroupClick, value, quantity, bgColor: color };
           return (
             <Col key={index} xs={4}>
-              <InvPlateGroup
-                onClick={onPlateGroupClick}
-                value={value}
-                quantity={quantity}
-                bgColor={color}
-              />
+              <InvPlateGroup {...plateGroupProps} />
             </Col>
           );
         })}
+
+        <Col xs={4}>
+          <div className="btn-clear-container text-center">
+            <button className="btn-clear" onClick={() => onClear()}>
+              <span className="center-vertically">clear</span>
+            </button>
+          </div>
+        </Col>
       </Row>
     </>
   );

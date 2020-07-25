@@ -1,6 +1,6 @@
 import React from 'react';
 import LoadForm from './loadForm';
-import SetContainer from './setContainer';
+import WarmUpSetContainer from './warmUpSetContainer';
 import { Row } from 'react-bootstrap';
 import '../css/warmUpSetCalc.css';
 
@@ -23,11 +23,11 @@ const WarmUpSetCalc = props => {
             const [percentage, load] = pair;
             const containerData = { unit, percentage, load };
             return (
-              <SetContainer key={index} {...containerData} onClick={onLoad} />
+              <WarmUpSetContainer key={index} {...containerData} onClick={onLoad} />
             );
           })}
           {workingWeight !== -1 && (
-            <SetContainer
+            <WarmUpSetContainer
               unit={unit}
               load={workingWeight}
               percentage={1}

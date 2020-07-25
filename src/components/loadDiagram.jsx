@@ -12,7 +12,7 @@ const LoadDiagram = props => {
 
       <div className="load__plate-group">
         <div style={{ opacity: '0px' }} className="plate-container" />
-        {props.calculatedPlates.map((plate, index) => (
+        {props.calcdPlates.map((plate, index) => (
           <div
             key={index}
             style={{ left: `${index * 32 + 32}px` }}

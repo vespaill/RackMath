@@ -31,7 +31,7 @@ class App extends Component {
       lbs: 45,
       kg: 20
     },
-    availablePlates: {
+    availPlates: {
       lbs: [
         { value: 100, quantity: 0 },
         { value: 65, quantity: 0 },
@@ -77,38 +77,47 @@ class App extends Component {
         { value: 0.25, quantity: 0 }
       ]
     },
-    calculatedPlates: [],
+    calcdPlates: [],
 
     // Warm Up related
-    percentages: [0.5, 0.6, 0.7, 0.8, 0.9],
+    percentages: [0.6, 0.7, 0.8, 0.9],
     workingWeight: -1,
     warmUpSets: []
   };
 
   componentDidMount() {
-    let availablePlates = {};
+    let availPlates = {};
 
     ['lbs', 'kg'].forEach(unit => {
-      availablePlates[unit] = this.state.availablePlates[
-        unit
-      ].map((plate, index) => ({ ...plate, color: calcBgColor(index) }));
+      availPlates[unit] = this.state.availPlates[unit].map((plate, index) => ({
+        ...plate,
+        color: calcBgColor(index)
+      }));
     });
 
-    this.setState({ availablePlates });
+    this.setState({ availPlates });
   }
 
   render() {
-    const {
+    const { unit, barbell, calcdPlates } = this.state;
+    const { availPlates, workingWeight, warmUpSets } = this.state;
+
+    const loaderProps = { unit, barbell: barbell[unit], calcdPlates, onSubmit: this.handleLoadSubmit };
+    const invProps = {
       unit,
       barbell,
-      availablePlates,
-      calculatedPlates,
+      availPlates,
+      onPlateGroupClick: this.handlePlateGroupClick,
+      onUnitClick: this.handleUnitClick,
+      onClear: this.handlePlateGroupsClear
+    };
+    const warmUpProps = {
+      unit,
       workingWeight,
-      warmUpSets
-    } = this.state;
-    const loaderData = { unit, barbell: barbell[unit], calculatedPlates };
-    const inventoryData = { unit, barbell, availablePlates };
-    const warmUpData = { unit, workingWeight, warmUpSets };
+      warmUpSets,
+      onSubmit: this.handleWorkingWeightSubmit,
+      onLoad: this.handleLoad
+    };
     return (
       <>
         <div className="container" style={{ paddingBottom: '70px' }}>
@@ -121,35 +130,9 @@ class App extends Component {
             pauseOnHover={false}
           />
           <Switch>
-            <Route
-              path="/home"
-              render={() => (
-                <LoadPlateCalc
-                  {...loaderData}
-                  onSubmit={this.handleLoadSubmit}
-                />
-              )}
-            />
-            <Route
-              path="/inventory"
-              render={() => (
-                <Inventory
-                  {...inventoryData}
-                  onPlateGroupClick={this.handlePlateGroupClick}
-                  onUnitClick={this.handleUnitClick}
-                />
-              )}
-            />
-            <Route
-              path="/warmup"
-              render={() => (
-                <WarmUpSetCalc
-                  {...warmUpData}
-                  onSubmit={this.handleWorkingWeightSubmit}
-                  onLoad={this.handleLoad}
-                />
-              )}
-            ></Route>
+            <Route path="/home" render={() => <LoadPlateCalc {...loaderProps} />} />
+            <Route path="/inventory" render={() => <Inventory {...invProps} />} />
+            <Route path="/warmup" render={() => <WarmUpSetCalc {...warmUpProps} />} />
             <Route path="/about" component={About}></Route>
             <Route path="/not-found" component={NotFound} />
             <Redirect from="/" exact to="/home" />
@@ -168,7 +151,7 @@ class App extends Component {
 
     this.setState({
       unit,
-      calculatedPlates: [], // reset calculated plates
+      calcdPlates: [], // reset calculated plates
       workingWeight: -1, // reset working weight
       warmUpSets: [] // reset working weight
     });
@@ -176,10 +159,10 @@ class App extends Component {
 
   handlePlateGroupClick = value => {
     const { unit } = this.state;
-    const cpy = { ...this.state.availablePlates };
+    const cpy = { ...this.state.availPlates };
     const i = cpy[unit].findIndex(element => element.value === value);
     cpy[unit][i].quantity = (cpy[unit][i].quantity + 2) % (MAX_PLATES + 2);
-    this.setState({ availablePlates: cpy });
+    this.setState({ availPlates: cpy });
   };
 
   handleLoadSubmit = e => {
@@ -191,14 +174,14 @@ class App extends Component {
   };
 
   handleLoad = load => {
-    const { unit, availablePlates } = this.state;
+    const { unit, availPlates: availPlates } = this.state;
     const barbell = this.state.barbell[unit];
-    const halfQuantity = modQuantity(availablePlates[unit], 0.5);
+    const halfQuantity = modQuantity(availPlates[unit], 0.5);
     const plateObjs = expandFromQuantity(halfQuantity);
     const { valid, errMsg } = this.validateLoad(load, barbell, plateObjs);
 
     if (!valid) {
-      this.setState({ calculatedPlates: [] });
+      this.setState({ calcdPlates: [] });
       toast.error(errMsg);
     } else {
       const {
@@ -211,7 +194,7 @@ class App extends Component {
       else if (severity === 'med') toast.warn(msg);
       else if (severity === 'high') toast.error(msg);
 
-      if (success) this.setState({ calculatedPlates: calcdPlateObjs });
+      if (success) this.setState({ calcdPlates: calcdPlateObjs });
     }
   };
 
@@ -222,8 +205,7 @@ class App extends Component {
         valid: false
       };
 
-    const totalWeightAvail =
-      barbell + 2 * plateObjs.reduce((prv, cur) => prv + cur.value, 0);
+    const totalWeightAvail = barbell + 2 * plateObjs.reduce((prv, cur) => prv + cur.value, 0);
 
     if (load > totalWeightAvail)
       return {
@@ -301,6 +283,13 @@ class App extends Component {
       // reset
       this.setState({ workingWeight: -1, warmUpSets: [] });
     }
+  };
+
+  handlePlateGroupsClear = () => {
+    const { unit } = this.state;
+    let availPlates = { ...this.state.availPlates };
+    availPlates[unit] = availPlates[unit].map(({ value, color }) => ({ value, quantity: 0, color }));
+    this.setState({ availPlates });
   };
 }
 
