@@ -16,3 +16,7 @@
   margin: auto 0;
   font-weight: bold;
 }
+
+.working-weight {
+  background-color: #9370DB !important;
+}

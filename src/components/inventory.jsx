@@ -6,14 +6,13 @@ import '../css/inventory.css';
 
 const Inventory = props => {
   const { unit, barbell, availPlates, onUnitClick, onPlateGroupClick, onClear } = props;
-  const clearBtnProps = { onClick: onClear, value: 'clear', quantity: -1, bgColor: 'gold' };
 
   return (
     <>
       <div className="container">
         <Row className="d-flex justify-content-between">
           <h1>Unit</h1>
-          <button className="btn-unit" variant="danger" onClick={() => onUnitClick()}>
+          <button className="btn-unit" variant="danger" onClick={e => onUnitClick(e)}>
             {unit}
           </button>
         </Row>
@@ -35,7 +34,6 @@ const Inventory = props => {
             </Col>
           );
         })}
-
         <Col xs={4}>
           <div className="btn-clear-container text-center">
             <button className="btn-clear" onClick={() => onClear()}>

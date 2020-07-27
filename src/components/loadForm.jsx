@@ -14,7 +14,7 @@ const LoadForm = props => {
           aria-label="weight"
           min="0"
           step="0.5"
-          onFocus={e => { e.currentTarget.value = ''; }}
+          onFocus={e => { e.currentTarget.select(); }}
         />
         <InputGroup.Append>
           <InputGroup.Text className="weight-input__text">

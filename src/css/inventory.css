@@ -54,12 +54,12 @@
 }
 
 .plate-group__plate:active,
-.btn-unit:active,
 .btn-clear:active {
   transform: scale(0.9);
   transition: all 0.1s;
 }
 
+/* The plate group counters */
 .plate-group__plate:active ~ * {
   transform: scale(0.9) translate(-10%, -10%);
   transition: all 0.1s;
@@ -70,17 +70,16 @@
     transform: translateX(0%);
   }
   33% {
-    transform: translateX(-5%);
+    transform: translateX(-10%);
   }
   66% {
-    transform: translateX(5%);
+    transform: translateX(10%);
   }
   100% {
     transform: translateX(0%);
   }
 }
 
-.btn-unit:hover,
-.btn-clear:hover {
-  animation: wiggle 0.2s;
+.btn-unit:active {
+  animation: wiggle 0.1s;
 }
