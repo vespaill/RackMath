@@ -84,6 +84,7 @@ class App extends Component {
     },
     calcdPlates: [],
     calcdLoad: -1,
+    prevCalcdLoad: -1,
 
     // Warm Up related
     percentages: [0.5, 0.6, 0.7, 0.8, 0.9, 1.1],
@@ -108,45 +109,16 @@ class App extends Component {
   }
 
   render() {
-    const {
-      unit,
-      barbell,
-      calcdPlates,
-      calcdLoad,
-      availPlates,
-      workingWeight,
-      workingNumReps,
-      warmUpSets
-    } = this.state;
+    const { unit, barbell, availPlates, calcdPlates, calcdLoad } = this.state;
+    const { prevCalcdLoad, workingWeight, workingNumReps, warmUpSets } = this.state;
+    const loaderProps = { unit, barbellWeight: barbell[unit], calcdPlates, calcdLoad, prevCalcdLoad, onSubmit: this.handleLoadSubmit };
+    const invProps = { unit, barbell, availPlates, onPlateGroupClick: this.handlePlateGroupClick, onUnitClick: this.handleUnitClick, onClear: this.handlePlateGroupsClear };
+    const warmUpProps = { unit, workingWeight, workingNumReps, warmUpSets, onSubmit: this.handleWorkSetSubmit, onLoad: this.handleLoad };
 
-    const loaderProps = { unit, barbellWeight: barbell[unit], calcdPlates, calcdLoad, onSubmit: this.handleLoadSubmit };
-    const invProps = {
-      unit,
-      barbell,
-      availPlates,
-      onPlateGroupClick: this.handlePlateGroupClick,
-      onUnitClick: this.handleUnitClick,
-      onClear: this.handlePlateGroupsClear
-    };
-    const warmUpProps = {
-      unit,
-      workingWeight,
-      workingNumReps,
-      warmUpSets,
-      onSubmit: this.handleWorkSetSubmit,
-      onLoad: this.handleLoad
-    };
     return (
       <>
         <div className="container" style={{ paddingBottom: '70px' }}>
-          <ToastContainer
-            limit={1}
-            autoClose={2000}
-            hideProgressBar
-            pauseOnFocusLoss={false}
-            draggable={false}
-            pauseOnHover={false}
-          />
+          <ToastContainer limit={1} autoClose={2000} hideProgressBar pauseOnFocusLoss={false} draggable={false} pauseOnHover={false} />
           <Switch>
             <Route path="/home" render={() => <Loader {...loaderProps} />} />
             <Route path="/inventory" render={() => <Inventory {...invProps} />} />
@@ -171,6 +143,7 @@ class App extends Component {
       unit,
       calcdPlates: [], // reset calculated plates
       calcdLoad: -1,
+      prevCalcdLoad: -1,
       workingWeight: -1, // reset working weight
       warmUpSets: [] // reset working weight
     });
@@ -202,9 +175,10 @@ class App extends Component {
     const halfQuantity = modQuantity(availPlates[unit], 0.5);
     const availPlatesOneSide = expandFromQuantity(halfQuantity);
     const { valid, errMsg } = this.validateLoad(load, barbellWeight, availPlatesOneSide);
+    const prevCalcdLoad = this.state.calcdLoad;
 
     if (!valid) {
-      this.setState({ calcdPlates: [], calcdLoad: -1 });
+      this.setState({ calcdPlates: [], calcdLoad: -1, prevCalcdLoad });
       toast.error(errMsg);
     } else {
       const { success, warn, calcdPlates, roundOff } = this.calculatePlates(load, barbellWeight, availPlatesOneSide);
@@ -215,8 +189,8 @@ class App extends Component {
 
       if (success) {
         const calcdLoad = calcdPlates.reduce((acc, cur) => acc + cur.value, 0) * 2 + barbellWeight;
-        this.setState({ calcdPlates, calcdLoad });
-      } else this.setState({ calcdPlates: [], calcdLoad: -1 });
+        this.setState({ calcdPlates, calcdLoad, prevCalcdLoad });
+      } else this.setState({ calcdPlates: [], calcdLoad: -1, prevCalcdLoad });
     }
   };
 

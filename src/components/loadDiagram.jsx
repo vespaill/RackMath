@@ -4,7 +4,8 @@ import '../css/loadDiagram.css';
 import LoadValue from './loadValue';
 
 const LoadDiagram = props => {
-  const { unit, barbellWeight, calcdPlates, calcdLoad } = props;
+  const { unit, barbellWeight, calcdPlates, calcdLoad, prevCalcdLoad } = props;
+  const loadValProps = { unit, calcdLoad, prevCalcdLoad };
 
   return (
     <>
@@ -26,7 +27,7 @@ const LoadDiagram = props => {
           ))}
         </div>
       </div>
-      <LoadValue unit={unit} value={calcdLoad} />
+      <LoadValue {...loadValProps} />
     </>
   );
 };

@@ -3,9 +3,9 @@ import LoadDiagram from './loadDiagram';
 import LoaderForm from './loaderForm';
 
 const Loader = props => {
-  const { unit, barbellWeight, calcdPlates, calcdLoad, onSubmit } = props;
+  const { unit, barbellWeight, calcdPlates, calcdLoad,  prevCalcdLoad, onSubmit } = props;
   const formProps = { unit, onSubmit };
-  const diagramProps = { unit, barbellWeight, calcdPlates, calcdLoad };
+  const diagramProps = { unit, barbellWeight, calcdPlates, calcdLoad, prevCalcdLoad };
 
   return (
     <>

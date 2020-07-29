@@ -1,36 +1,27 @@
-import React, { Component } from 'react';
+import React from 'react';
 import '../css/loadValue.css';
+import shortid from 'shortid';
 
-class LoadValue extends Component {
-  constructor(props) {
-    super(props);
-    this.myRef = React.createRef();
-  }
+const LoadValue = props => {
+  const { prevCalcdLoad, calcdLoad, unit } = props;
 
-  updateAnimation() {
-    this.myRef.current.classList.remove('animate-wiggle');
-    setTimeout(() => {
-      this.myRef.current.classList.add('animate-wiggle');
-    }, 10);
-  }
+  const id1 = shortid.generate();
+  const id2 = shortid.generate();
 
-  componentDidMount() { this.updateAnimation(); }
-  componentDidUpdate() { this.updateAnimation(); }
-
-  render() {
-    const { value, unit } = this.props;
-    return (
-      <div className="load-value center-vertically">
-        <div
-          ref={this.myRef}
-          className="load-value__inner badge badge-success"
-          style={{ opacity: value > -1 ? '100%' : '0' }}
-        >
-          {`${value} ${unit}`}
+  return (
+    <div className="load-value center-vertically">
+      {prevCalcdLoad > -1 && (
+        <div key={id1} className="load-value__prev badge badge-success animate-leave">
+          {`${prevCalcdLoad} ${unit}`}
         </div>
-      </div>
-    );
-  }
-}
+      )}
+      {calcdLoad > -1 && (
+        <div key={id2} className="load-value__cur badge badge-success animate-enter">
+          {`${calcdLoad} ${unit}`}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default LoadValue;
