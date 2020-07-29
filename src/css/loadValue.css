@@ -17,7 +17,7 @@
 }
 
 .load-value__cur {
-  right: 500px;
+  right: 10000px;
 }
 
 @keyframes slideOutToLeft {
@@ -26,6 +26,7 @@
   }
   100% {
     right: 500px;
+    visibility: hidden;
   }
 }
 
