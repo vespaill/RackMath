@@ -2,7 +2,7 @@ import React from 'react';
 import { Form, InputGroup, FormControl, Button } from 'react-bootstrap';
 import '../css/loadForm.css';
 
-const WarmUpSetForm = props => {
+const SetsCalcForm = props => {
   return (
     <Form className="warmUpSetsForm" onSubmit={e => props.onSubmit(e)}>
       <InputGroup>
@@ -39,4 +39,4 @@ const WarmUpSetForm = props => {
   );
 };
 
-export default WarmUpSetForm;
+export default SetsCalcForm;

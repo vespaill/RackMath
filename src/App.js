@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-import NavBarBottom from './components/navBarBottom';
+import NavBar from './components/navBar';
 import Inventory from './components/inventory';
 import NotFound from './components/common/notFound';
-import LoadPlateCalc from './components/loadPlateCalc';
-import WarmUpSetCalc from './components/warmUpSetCalc';
+import Loader from './components/loader';
+import SetsCalculator from './components/setsCalculator';
 import About from './components/about';
 import { modQuantity, expandFromQuantity } from './utils/inventory';
 import { calcBgColor } from './utils/calcBgColor';
@@ -19,8 +19,8 @@ const MAX_PLATES = 8;
 
 const roundToNearestStep = (value, step) => {
   const remainder = value % step;
-  if (remainder >= step / 2) return value - remainder + step;
-  return value - remainder;
+  const quotient = value - remainder;
+  return remainder >= step / 2 ? quotient + step : quotient;
 };
 
 const calcWarmUpReps = (percentage, workingNumSets) => {
@@ -148,16 +148,16 @@ class App extends Component {
             pauseOnHover={false}
           />
           <Switch>
-            <Route path="/home" render={() => <LoadPlateCalc {...loaderProps} />} />
+            <Route path="/home" render={() => <Loader {...loaderProps} />} />
             <Route path="/inventory" render={() => <Inventory {...invProps} />} />
-            <Route path="/warmup" render={() => <WarmUpSetCalc {...warmUpProps} />} />
+            <Route path="/warmup" render={() => <SetsCalculator {...warmUpProps} />} />
             <Route path="/about" component={About}></Route>
             <Route path="/not-found" component={NotFound} />
             <Redirect from="/" exact to="/home" />
             <Redirect to="/not-found" />
           </Switch>
         </div>
-        <NavBarBottom />
+        <NavBar />
       </>
     );
   }
@@ -191,7 +191,7 @@ class App extends Component {
     e.preventDefault();
     // Blur in order to hide keyboard on mobile.
     e.currentTarget.firstElementChild.firstElementChild.blur();
-    console.log(e.currentTarget.firstElementChild.firstElementChild);
+    // console.log(e.currentTarget.firstElementChild.firstElementChild);
     this.handleLoad(e.currentTarget.loadInput.value);
     // e.currentTarget.loadInput.value = '';
   };
@@ -200,18 +200,18 @@ class App extends Component {
     const { unit, availPlates } = this.state;
     const barbellWeight = this.state.barbell[unit];
     const halfQuantity = modQuantity(availPlates[unit], 0.5);
-    const plateObjs = expandFromQuantity(halfQuantity);
-    const { valid, errMsg } = this.validateLoad(load, barbellWeight, plateObjs);
+    const availPlatesOneSide = expandFromQuantity(halfQuantity);
+    const { valid, errMsg } = this.validateLoad(load, barbellWeight, availPlatesOneSide);
 
     if (!valid) {
       this.setState({ calcdPlates: [], calcdLoad: -1 });
       toast.error(errMsg);
     } else {
-      const { success, warn, calcdPlates, roundedOffAmount } = this.calculatePlates(load, barbellWeight, plateObjs);
+      const { success, warn, calcdPlates, roundOff } = this.calculatePlates(load, barbellWeight, availPlatesOneSide);
 
       if (warn === 'justbar') toast.success('Just the bar!');
-      else if (warn === 'roundoff') toast.warn(`${roundedOffAmount} ${unit} has been rounded off.`);
-      else if (warn === 'room') toast.error('Not enough room on the bar!');
+      else if (warn === 'roundoff') toast.warn(`Rounded ${roundOff.up ? 'up' : 'down'} ${roundOff.amount} ${unit}`);
+      else if (warn === 'notEnoughRoom') toast.error('Not enough room on the bar!');
 
       if (success) {
         const calcdLoad = calcdPlates.reduce((acc, cur) => acc + cur.value, 0) * 2 + barbellWeight;
@@ -220,14 +220,14 @@ class App extends Component {
     }
   };
 
-  validateLoad = (load, barbell, plateObjs) => {
+  validateLoad = (load, barbell, availPlatesOneSide) => {
     if (load < barbell)
       return {
         valid: false,
         errMsg: "That's not even the bar!"
       };
 
-    const totalWeightAvail = barbell + 2 * plateObjs.reduce((acc, cur) => acc + cur.value, 0);
+    const totalWeightAvail = barbell + 2 * availPlatesOneSide.reduce((acc, cur) => acc + cur.value, 0);
 
     if (load > totalWeightAvail)
       return {
@@ -244,28 +244,41 @@ class App extends Component {
    * flag will be false.
    * @param {Number} targetLoad - Weight to load onto barbell.
    * @param {Number} barbellWeight - Weight of the barbell.
-   * @param {Object[]} plateObjs - Available plate objects for one side of bar.
+   * @param {Object[]} availPlatesOneSide - Available plate objects for one side of bar.
    * @param {Number} plateObjs[].value - The plate's weight.
    * @param {String} plateObjs[].color - The plate's color.
    */
-  calculatePlates = (targetLoad, barbellWeight, plateObjs) => {
-    let workingLoad = targetLoad - barbellWeight;
+  calculatePlates = (targetLoad, barbellWeight, availPlatesOneSide) => {
+    const step = availPlatesOneSide.reduce((prev, cur) => (prev < cur ? prev : cur)).value * 2;
+    let workingLoad = roundToNearestStep(targetLoad, step);
+    const roundOff = { amount: Math.abs(workingLoad - targetLoad), up: workingLoad > targetLoad };
+
     let success = true;
+    let warn = '';
     let calcdPlates = [];
 
-    if (workingLoad === 0) return { success, warn: 'justbar', calcdPlates };
+    workingLoad -= barbellWeight;
+    const justbar = workingLoad === 0;
 
-    // Work with one side of the barbell. Presumably, both sides are identical.
-    workingLoad /= 2;
-    for (let plate of plateObjs) {
-      if (workingLoad >= plate.value) {
-        calcdPlates.push(plate);
-        if (calcdPlates.length > MAX_PLATES) return { success: false, warn: 'room' };
-        workingLoad -= plate.value;
+    if (justbar) warn = 'justbar';
+    if (roundOff.amount > 0) warn = 'roundoff';
+
+    if (!justbar) {
+      // Work with one side of the barbell. Presumably, both sides are identical.
+      workingLoad /= 2;
+      for (let plate of availPlatesOneSide) {
+        if (workingLoad >= plate.value) {
+          calcdPlates.push(plate);
+          if (calcdPlates.length > MAX_PLATES) {
+            success = false;
+            warn = 'notEnoughRoom';
+            break;
+          }
+          workingLoad -= plate.value;
+        }
       }
     }
-    if (workingLoad !== 0) return { success, warn: 'roundoff', roundedOffAmount: workingLoad * 2, calcdPlates };
-    return { success, calcdPlates };
+    return { success, warn, calcdPlates, roundOff };
   };
 
   handleWorkSetSubmit = e => {

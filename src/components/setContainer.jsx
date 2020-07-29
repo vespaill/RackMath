@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import '../css/warmUpSetContainer.css';
+import '../css/setContainer.css';
 
-const WarmUpSetContainer = props => {
+const SetContainer = props => {
   const { unit, percentage, weight, numReps, isWorkingSet, btnText } = props;
   const workSetClass = isWorkingSet ? ' working-weight' : '';
 
@@ -22,4 +22,4 @@ const WarmUpSetContainer = props => {
   );
 };
 
-export default WarmUpSetContainer;
+export default SetContainer;

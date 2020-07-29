@@ -2,7 +2,7 @@ import React from 'react';
 import { Form, InputGroup, FormControl, Button } from 'react-bootstrap';
 import '../css/loadForm.css';
 
-const LoadForm = props => {
+const LoaderForm = props => {
   return (
     <Form onSubmit={e => props.onSubmit(e)}>
       <InputGroup>
@@ -29,4 +29,4 @@ const LoadForm = props => {
   );
 };
 
-export default LoadForm;
+export default LoaderForm;

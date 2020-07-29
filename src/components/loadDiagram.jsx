@@ -1,6 +1,7 @@
 import React from 'react';
 import { limitPlateHeight } from '../utils/limitPlateHeight';
 import '../css/loadDiagram.css';
+import LoadValue from './loadValue';
 
 const LoadDiagram = props => {
   const { unit, barbellWeight, calcdPlates, calcdLoad } = props;
@@ -25,9 +26,7 @@ const LoadDiagram = props => {
           ))}
         </div>
       </div>
-      <div className="load-value badge badge-success" style={{ opacity: calcdLoad > -1 ? '100%' : '0' }}>
-        {`${calcdLoad} ${unit}`}
-      </div>
+      <LoadValue unit={unit} value={calcdLoad} />
     </>
   );
 };

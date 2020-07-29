@@ -1,10 +1,10 @@
 import React from 'react';
-import WarmUpSetForm from './warmUpSetForm';
-import WarmUpSetContainer from './warmUpSetContainer';
-import '../css/warmUpSetCalc.css';
-import Cog from './icons/cog';
+import SetsCalcForm from './setsCalcForm';
+import SetContainer from './setContainer';
+import '../css/setsCalculator.css';
+// import Cog from './icons/cog';
 
-const WarmUpSetCalc = props => {
+const SetsCalculator = props => {
   const { workingWeight, workingNumReps, warmUpSets, unit, onSubmit, onLoad } = props;
   const contProps = { unit, onClick: onLoad };
   const workingWeightContProps = {
@@ -25,20 +25,20 @@ const WarmUpSetCalc = props => {
           <Cog />
         </button> */}
       </div>
-      <WarmUpSetForm style={{ display: 'inline' }} unit={unit} onSubmit={onSubmit} btnText="Calculate" />
+      <SetsCalcForm style={{ display: 'inline' }} unit={unit} onSubmit={onSubmit} btnText="Calculate" />
       <div className="setList-container">
         <div className="setList mx-auto">
           {warmUpSets.map((set, index) => {
             const { percentage, weight, numReps } = set;
             const additionalProps = { percentage, weight, numReps };
-            return <WarmUpSetContainer key={index} btnText="Load" {...contProps} {...additionalProps} />;
+            return <SetContainer key={index} btnText="Load" {...contProps} {...additionalProps} />;
           })}
-          {workingWeight !== -1 && <WarmUpSetContainer {...contProps} {...workingWeightContProps} />}
+          {workingWeight !== -1 && <SetContainer {...contProps} {...workingWeightContProps} />}
         </div>
       </div>
-      <div className="popup" id="popup"></div>
+      {/* <div className="popup" id="popup"></div> */}
     </>
   );
 };
 
-export default WarmUpSetCalc;
+export default SetsCalculator;

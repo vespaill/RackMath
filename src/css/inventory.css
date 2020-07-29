@@ -65,21 +65,6 @@
   transition: all 0.1s;
 }
 
-@keyframes wiggle {
-  0% {
-    transform: translateX(0%);
-  }
-  33% {
-    transform: translateX(-10%);
-  }
-  66% {
-    transform: translateX(10%);
-  }
-  100% {
-    transform: translateX(0%);
-  }
-}
-
 .btn-unit:active {
   animation: wiggle 0.1s;
 }

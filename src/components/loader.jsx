@@ -1,8 +1,8 @@
 import React from 'react';
 import LoadDiagram from './loadDiagram';
-import LoadForm from './loadForm';
+import LoaderForm from './loaderForm';
 
-const LoadPlateCalc = props => {
+const Loader = props => {
   const { unit, barbellWeight, calcdPlates, calcdLoad, onSubmit } = props;
   const formProps = { unit, onSubmit };
   const diagramProps = { unit, barbellWeight, calcdPlates, calcdLoad };
@@ -12,10 +12,10 @@ const LoadPlateCalc = props => {
       <div className="d-flex justify-content-center row">
         <h1>Barbell Loader</h1>
       </div>
-      <LoadForm {...formProps} placeholder="Enter Weight" btnText="Load" />
+      <LoaderForm {...formProps} placeholder="Enter Weight" btnText="Load" />
       <LoadDiagram {...diagramProps} />
     </>
   );
 };
 
-export default LoadPlateCalc;
+export default Loader;

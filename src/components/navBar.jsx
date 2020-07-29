@@ -1,12 +1,12 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import '../css/navBarBottom.css';
+import '../css/navBar.css';
 import Barbell from './icons/barbell';
 import Plate from './icons/plate';
 import Info from './icons/info';
 import Fire from './icons/fire';
 
-const NavBarBottom = () => {
+const NavBar = () => {
   return (
     <nav className="bg-red navbar fixed-bottom d-flex justify-content-between">
       <NavLink className="nav-item" activeClassName="active-class" to="/home">
@@ -25,4 +25,4 @@ const NavBarBottom = () => {
   );
 };
 
-export default NavBarBottom;
+export default NavBar;
