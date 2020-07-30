@@ -1,5 +1,6 @@
 import React from 'react';
 import { Form, InputGroup, FormControl, Button } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import '../css/loadForm.css';
 
 const LoaderForm = props => {
@@ -7,7 +8,7 @@ const LoaderForm = props => {
     <Form onSubmit={e => props.onSubmit(e)}>
       <InputGroup>
         <FormControl
-          className="weight-input__form"
+          className="text-right"
           type="number"
           name="loadInput"
           placeholder={props.placeholder}
@@ -22,9 +23,11 @@ const LoaderForm = props => {
           </InputGroup.Text>
         </InputGroup.Append>
       </InputGroup>
-      <Button className="mx-auto d-block" variant="dark" type="submit">
-        {props.btnText}
-      </Button>
+      <div>
+        <Button className="mx-auto d-block" variant="dark" type="submit">
+          {props.btnText}
+        </Button>
+      </div>
     </Form>
   );
 };

@@ -7,20 +7,20 @@ import Info from './icons/info';
 import Fire from './icons/fire';
 
 const NavBar = () => {
+  const navLinks = [
+    { url: { pathname: '/home', from: 'navBar' }, component: <Barbell /> },
+    { url: '/warmup', component: <Fire /> },
+    { url: '/inventory', component: <Plate /> },
+    { url: '/about', component: <Info /> }
+  ];
+  const commonProps = { className: 'nav-item', activeClassName: 'active-class', replace: true };
   return (
     <nav className="bg-red navbar fixed-bottom d-flex justify-content-between">
-      <NavLink className="nav-item" activeClassName="active-class" to="/home">
-        <Barbell />
-      </NavLink>
-      <NavLink className="nav-item" activeClassName="active-class" to="/warmup">
-        <Fire />
-      </NavLink>
-      <NavLink className="nav-item" activeClassName="active-class" to="/inventory">
-        <Plate />
-      </NavLink>
-      <NavLink className="nav-item" activeClassName="active-class" to="/about">
-        <Info />
-      </NavLink>
+      {navLinks.map(({ url, component }, index) => (
+        <NavLink key={index} {...commonProps} to={url}>
+          {component}
+        </NavLink>
+      ))}
     </nav>
   );
 };

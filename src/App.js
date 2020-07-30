@@ -88,8 +88,8 @@ class App extends Component {
 
     // Warm Up related
     percentages: [0.5, 0.6, 0.7, 0.8, 0.9, 1.1],
-    workingWeight: -1,
-    workingNumReps: -1,
+    workWeight: -1,
+    workNumReps: -1,
     warmUpSets: [
       /* {percentage, weight, numReps}, ... */
     ]
@@ -110,19 +110,50 @@ class App extends Component {
 
   render() {
     const { unit, barbell, availPlates, calcdPlates, calcdLoad } = this.state;
-    const { prevCalcdLoad, workingWeight, workingNumReps, warmUpSets } = this.state;
-    const loaderProps = { unit, barbellWeight: barbell[unit], calcdPlates, calcdLoad, prevCalcdLoad, onSubmit: this.handleLoadSubmit };
-    const invProps = { unit, barbell, availPlates, onPlateGroupClick: this.handlePlateGroupClick, onUnitClick: this.handleUnitClick, onClear: this.handlePlateGroupsClear };
-    const warmUpProps = { unit, workingWeight, workingNumReps, warmUpSets, onSubmit: this.handleWorkSetSubmit, onLoad: this.handleLoad };
+    const { prevCalcdLoad, workWeight, workNumReps, warmUpSets } = this.state;
+    const loaderProps = {
+      unit,
+      barbellWeight: barbell[unit],
+      calcdPlates,
+      calcdLoad,
+      prevCalcdLoad,
+      onSubmit: this.handleLoadSubmit,
+      resetPrevLoad: this.resetPrevLoad
+    };
+    const invProps = {
+      unit,
+      barbell,
+      availPlates,
+      onPlateGroupClick: this.handlePlateGroupClick,
+      onUnitClick: this.handleUnitClick,
+      onClear: this.handlePlateGroupsClear
+    };
+    const setsCalcProps = {
+      unit,
+      workWeight,
+      workNumReps,
+      warmUpSets,
+      onSubmit: this.handleWorkSetSubmit,
+      onLoad: this.handleLoad
+    };
+
+    const toastProps = {
+      limit: 1,
+      autoClose: 2000,
+      hideProgressBar: true,
+      pauseOnFocusLoss: false,
+      draggable: false,
+      pauseOnHover: false
+    };
 
     return (
       <>
         <div className="container" style={{ paddingBottom: '70px' }}>
-          <ToastContainer limit={1} autoClose={2000} hideProgressBar pauseOnFocusLoss={false} draggable={false} pauseOnHover={false} />
+          <ToastContainer {...toastProps} />
           <Switch>
             <Route path="/home" render={() => <Loader {...loaderProps} />} />
             <Route path="/inventory" render={() => <Inventory {...invProps} />} />
-            <Route path="/warmup" render={() => <SetsCalculator {...warmUpProps} />} />
+            <Route path="/warmup" render={() => <SetsCalculator {...setsCalcProps} />} />
             <Route path="/about" component={About}></Route>
             <Route path="/not-found" component={NotFound} />
             <Redirect from="/" exact to="/home" />
@@ -144,7 +175,7 @@ class App extends Component {
       calcdPlates: [], // reset calculated plates
       calcdLoad: -1,
       prevCalcdLoad: -1,
-      workingWeight: -1, // reset working weight
+      workWeight: -1, // reset working weight
       warmUpSets: [] // reset working weight
     });
 
@@ -184,7 +215,7 @@ class App extends Component {
       const { success, warn, calcdPlates, roundOff } = this.calculatePlates(load, barbellWeight, availPlatesOneSide);
 
       if (warn === 'justbar') toast.success('Just the bar!');
-      else if (warn === 'roundoff') toast.warn(`Rounded ${roundOff.up ? 'up' : 'down'} ${roundOff.amount} ${unit}`);
+      else if (warn === 'roundoff') toast.warn(`Rounded ${roundOff.up ? 'up' : 'down'} by ${roundOff.amount} ${unit}`);
       else if (warn === 'notEnoughRoom') toast.error('Not enough room on the bar!');
 
       if (success) {
@@ -260,21 +291,21 @@ class App extends Component {
     e.currentTarget.firstElementChild.querySelectorAll('input').forEach(elem => {
       elem.blur();
     });
-    const { value: workingWeight } = e.currentTarget.loadInput;
-    const { value: workingNumReps } = e.currentTarget.numRepsInput;
+    const { value: workWeight } = e.currentTarget.loadInput;
+    const { value: workNumReps } = e.currentTarget.numRepsInput;
 
-    if (workingWeight && workingNumReps) {
+    if (workWeight && workNumReps) {
       const warmUpSets = [];
       const { percentages } = this.state;
       percentages.forEach(percentage => {
         warmUpSets.push({
           percentage,
-          weight: roundToNearestStep(workingWeight * percentage, 5),
-          numReps: calcWarmUpReps(percentage, workingNumReps)
+          weight: roundToNearestStep(workWeight * percentage, 5),
+          numReps: calcWarmUpReps(percentage, workNumReps)
         });
       });
-      this.setState({ workingWeight, workingNumReps, warmUpSets });
-    } else this.setState({ workingWeight: -1, workingNumReps: -1, warmUpSets: [] });
+      this.setState({ workWeight, workNumReps, warmUpSets });
+    } else this.setState({ workWeight: -1, workNumReps: -1, warmUpSets: [] });
   };
 
   handlePlateGroupsClear = () => {
@@ -282,6 +313,10 @@ class App extends Component {
     let availPlates = { ...this.state.availPlates };
     availPlates[unit] = availPlates[unit].map(({ value, color }) => ({ value, quantity: 0, color }));
     this.setState({ availPlates });
+  };
+
+  resetPrevLoad = () => {
+    this.setState({ prevCalcdLoad: -1 });
   };
 }
 

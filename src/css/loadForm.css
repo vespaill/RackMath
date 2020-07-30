@@ -1,44 +1,63 @@
-Form {
+form {
   margin: 0 auto;
   margin-top: 50px;
-  width: 200px;
 }
 
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+form > * {
+  width: 250px !important;
+  margin: 0 auto;
 }
 
 .form-control:focus {
-  /* outline: 0px !important; */
   -webkit-appearance: none;
   box-shadow: none;
   border-bottom: 1px black solid;
 }
 
-.weight-input__form {
+.form-control {
   border: none;
   border-radius: 0;
   border-bottom: 1px solid black;
   text-align: right;
 }
 
-.weight-input__form::placeholder {
+.form-control::placeholder {
   color: #a9a9a9;
 }
 
-.weight-input__text {
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input-group > input {
+  text-align: center;
+}
+
+.input-group-append > * {
   background-color: transparent;
   color: #000;
   border: none;
   margin-bottom: 16px;
 }
+/******************************************************************************/
 
-.warmUpSetsForm {
-  width: 250px;
+.button-group {
+  position: relative;
+  height: 38px;
 }
 
-.warmUpSetsForm > * > input {
-  text-align: center;
+.settings-btn {
+  padding: 5px;
+  width: 38px;
+  height: 38px;
+  position: absolute;
+  right: 0;
+}
+
+.calc-btn {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }

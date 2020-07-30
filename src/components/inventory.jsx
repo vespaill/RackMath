@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col } from 'react-bootstrap';
 import InvPlateGroup from './invPlateGroup';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import Header from './common/header';
 import '../css/inventory.css';
 
 const Inventory = props => {
@@ -9,21 +9,19 @@ const Inventory = props => {
 
   return (
     <>
-      <div className="container">
-        <Row className="d-flex justify-content-between">
-          <h1>Unit</h1>
-          <button className="btn-unit" variant="danger" onClick={e => onUnitClick(e)}>
-            {unit}
-          </button>
-        </Row>
-        <Row className="d-flex justify-content-between">
-          <h1>Barbell</h1>
-          <h1>{barbell[unit]}</h1>
-        </Row>
-        <Row className="d-flex justify-content-center">
-          <h1>Available plates</h1>
-        </Row>
-      </div>
+      <Header>
+        <h1>Unit</h1>
+        <button className="btn-unit" variant="danger" onClick={e => onUnitClick(e)}>
+          {unit}
+        </button>
+      </Header>
+      <Header>
+        <h1>Barbell</h1>
+        <h1>{barbell[unit]}</h1>
+      </Header>
+      <Header>
+        <h1>Available plates</h1>
+      </Header>
       <Row style={{ minWidth: '300px' }}>
         {availPlates[unit].map((plate, index) => {
           const { value, color, quantity } = plate;
