@@ -7,7 +7,7 @@ import NotFound from './components/common/notFound';
 import Loader from './components/loader';
 import SetsCalculator from './components/setsCalculator';
 import About from './components/about';
-import { modQuantity, expandFromQuantity } from './utils/inventory';
+// import { modQuantity, expandFromQuantity } from './utils/inventory';
 import { calcBgColor } from './utils/calcBgColor';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -202,18 +202,31 @@ class App extends Component {
   };
 
   handleLoad = load => {
-    const { unit, availPlates } = this.state;
+    const { unit } = this.state;
     const barbellWeight = this.state.barbell[unit];
-    const halfQuantity = modQuantity(availPlates[unit], 0.5);
-    const availPlatesOneSide = expandFromQuantity(halfQuantity);
-    const { valid, errMsg } = this.validateLoad(load, barbellWeight, availPlatesOneSide);
+
+    /* Get the available plates and half their quantities. We're going to work
+       with loading one side of the barbell. */
+    let availPlates = [...this.state.availPlates[unit]];
+    availPlates = availPlates
+      .filter(({ quantity }) => quantity > 0)
+      .map(plate => {
+        const { value, color, quantity } = plate;
+        return { value, color, quantity: quantity / 2 };
+      });
+
+    const { valid, errMsg } = this.validateLoad(load, barbellWeight, availPlates);
     const prevCalcdLoad = this.state.calcdLoad;
 
     if (!valid) {
       this.setState({ calcdPlates: [], calcdLoad: -1, prevCalcdLoad });
       toast.error(errMsg);
     } else {
-      const { success, warn, calcdPlates, roundOff } = this.calculatePlates(load, barbellWeight, availPlatesOneSide);
+      const { success, warn, calcdLoad, calcdPlates, roundOff } = this.calculatePlates(
+        load,
+        barbellWeight,
+        availPlates
+      );
 
       if (warn === 'justbar') toast.success('Just the bar!');
       else if (warn === 'roundoff') {
@@ -222,66 +235,84 @@ class App extends Component {
       } else if (warn === 'notEnoughRoom') toast.error('Not enough room on the bar!');
 
       if (success) {
-        const calcdLoad = calcdPlates.reduce((acc, cur) => acc + cur.value, 0) * 2 + barbellWeight;
+        // const calcdLoad = calcdPlates.reduce((acc, cur) => acc + cur.value, 0) * 2 + barbellWeight;
         this.setState({ calcdPlates, calcdLoad, prevCalcdLoad });
       } else this.setState({ calcdPlates: [], calcdLoad: -1, prevCalcdLoad });
     }
   };
 
-  validateLoad = (load, barbell, availPlatesOneSide) => {
-    if (load < barbell)
-      return {
-        valid: false,
-        errMsg: "That's not even the bar!"
-      };
-
-    const totalWeightAvail = barbell + 2 * availPlatesOneSide.reduce((acc, cur) => acc + cur.value, 0);
-
-    if (load > totalWeightAvail)
-      return {
-        valid: false,
-        errMsg: "Your inventory doesn't work with that weight"
-      };
-
+  validateLoad = (load, bar, availPlates) => {
+    if (load < bar) return { valid: false, errMsg: "That's not even the bar!" };
+    const total = bar + 2 * availPlates.reduce((acc, cur) => acc + cur.value * cur.quantity, 0);
+    if (load > total) return { valid: false, errMsg: "Your inventory doesn't work with that weight" };
     return { valid: true };
   };
 
-  /**
-   * Returns an array containing the plates objects that must loaded on one side
-   * of a barbell in order to meet a target load. If not possible, the success
-   * flag will be false.
-   * @param {Number} targetLoad - Weight to load onto barbell.
-   * @param {Number} barbellWeight - Weight of the barbell.
-   * @param {Object[]} availPlatesOneSide - Available plate objects for one side of bar.
-   * @param {Number} plateObjs[].value - The plate's weight.
-   * @param {String} plateObjs[].color - The plate's color.
-   */
-  calculatePlates = (targetLoad, barbellWeight, availPlatesOneSide) => {
+  calculatePlates = (targetLoad, barWeight, availPlates) => {
     const success = true;
-    const calcdPlates = [];
-    if (targetLoad - barbellWeight === 0) return { success, warn: 'justbar', calcdLoad: barbellWeight, calcdPlates };
+    if (targetLoad - barWeight === 0) return { success, warn: 'justbar', calcdLoad: barWeight, calcdPlates: [] };
+    let cpyAvailPlates = availPlates.map(plate => ({ ...plate }));
+    let combinations = [];
 
-    // Work with one side of the barbell. Presumably, both sides are identical.
+    while (cpyAvailPlates.length > 0) {
+      let { warn, calcdLoad, calcdPlates, roundOff } = this.calcPlatesHelper(targetLoad, barWeight, cpyAvailPlates);
+      if (warn === 'notEnoughRoom') break;
+      combinations.push({ warn, calcdLoad, calcdPlates, roundOff });
+      cpyAvailPlates[0].quantity--;
+      if (cpyAvailPlates[0].quantity === 0) cpyAvailPlates.shift();
+    }
+
+    if (combinations.length === 0) return { success: false, warn: 'notEnoughRoom', calcdLoad: -1, calcdPlates: [] };
+
+    const validCombs = combinations.map(comb => ({ ...comb })).filter(comb => comb.warn === undefined);
+    const minRoundOff = validCombs.reduce((prev, cur) => (prev.roundOff < cur.roundOff ? prev : cur)).roundOff;
+    const leastRoundOffCombs = validCombs.map(comb => ({ ...comb })).filter(comb => comb.roundOff === minRoundOff);
+    const minNumPlates = leastRoundOffCombs.reduce((prev, cur) =>
+      prev.calcdPlates.length < cur.calcdPlates.length ? prev : cur
+    ).calcdPlates.length;
+    const leastNumPlatesCombs = leastRoundOffCombs
+      .map(comb => ({ ...comb }))
+      .filter(comb => comb.calcdPlates.length === minNumPlates);
+
+    console.log('combinations:', combinations);
+    console.log('validCombs:', validCombs);
+    console.log('leastRoundOffCombs:', leastRoundOffCombs);
+    console.log('leastNumPlatesCombs:', leastNumPlatesCombs);
+
+    const { calcdLoad, calcdPlates, roundOff: roundOffAmount } = leastNumPlatesCombs[0];
+    let warn, roundOff;
+    if (roundOffAmount) {
+      warn = 'roundoff';
+      roundOff = { amount: roundOffAmount, up: calcdLoad > targetLoad };
+    }
+
+    // console.log('roundOff:', roundOff);
+
+    return { success, calcdLoad, calcdPlates, roundOff, warn };
+  };
+
+  calcPlatesHelper = (targetLoad, barbellWeight, availPlates) => {
     let calcdLoad = barbellWeight;
-    let sum = 0;
-    const smallest = availPlatesOneSide.reduce((prev, cur) => (prev < cur ? prev : cur));
+    const calcdPlates = [];
+    let cpyAvailPlates = availPlates.map(plate => ({ ...plate }));
+    const smallestPlate = cpyAvailPlates.reduce((prev, cur) => (prev.value < cur.value ? prev : cur)).value;
+    // console.log(smallestPlate);
 
-    for (let plate of availPlatesOneSide) {
-      sum = calcdLoad + plate.value * 2;
-      let dif = Math.abs(targetLoad - sum);
-      if (sum <= targetLoad || dif < smallest.value) {
-        calcdLoad = sum;
-        calcdPlates.push(plate);
-        if (calcdPlates.length > MAX_PLATES)
-          return { success: false, warn: 'notEnoughRoom', calcdLoad: -1, calcdPlates: [] };
+    for (let plateGroup of cpyAvailPlates) {
+      let { value, color, quantity } = plateGroup;
+      for (let i = 0; i < quantity; ++i) {
+        const nextLoad = plateGroup.value * 2;
+        const dif = Math.abs(targetLoad - (calcdLoad + nextLoad));
+        if (calcdLoad + nextLoad <= targetLoad || dif < smallestPlate) {
+          calcdLoad += nextLoad;
+          calcdPlates.push({ value, color });
+          if (calcdPlates.length > MAX_PLATES) return { warn: 'notEnoughRoom', calcdLoad: -1, calcdPlates: [] };
+          plateGroup.quantity--;
+        }
       }
     }
 
-    const roundOffAmount = Math.abs(targetLoad - calcdLoad);
-    const warn = roundOffAmount ? 'roundoff' : undefined;
-    const roundOff = { amount: roundOffAmount, up: calcdLoad > targetLoad };
-
-    return { success, calcdLoad, calcdPlates, roundOff, warn };
+    return { calcdLoad, calcdPlates, roundOff: Math.abs(targetLoad - calcdLoad) };
   };
 
   handleWorkSetSubmit = e => {
@@ -302,7 +333,7 @@ class App extends Component {
         .map(plate => plate.value)
         .reduce((prev, cur) => (prev < cur ? prev : cur));
 
-      console.log(smallestAvailPlate);
+      // console.log(smallestAvailPlate);
 
       percentages.forEach(percentage => {
         warmUpSets.push({
