@@ -17,6 +17,22 @@ import './css/toastify.css';
 
 const MAX_PLATES = 8;
 
+const calcSubsets = set => {
+  let numSubsets = 1 << set.length; // 2^n
+  let subsets = [];
+
+  for (let bitSet = numSubsets - 1; bitSet >= 0; --bitSet) {
+    let subset = [];
+    // Iterate through the bitSet. Checking each bit.
+    for (let j = 0; j < set.length; ++j) {
+      // If the bit at position j is turned on in the bit set, push element j.
+      if ((bitSet & (1 << j)) > 0) subset.push({ ...set[j] });
+    }
+    if (subset.length > 0) subsets.push(subset); // Push subset into list of all subsets.
+  }
+  return subsets;
+};
+
 const roundToNearestStep = (load, barbell, step) => {
   const remainder = (load - barbell) % step;
   const dividend = load - remainder;
@@ -254,13 +270,26 @@ class App extends Component {
     let cpyAvailPlates = availPlates.map(plate => ({ ...plate }));
     let combinations = [];
 
-    while (cpyAvailPlates.length > 0) {
-      let { warn, calcdLoad, calcdPlates, roundOff } = this.calcPlatesHelper(targetLoad, barWeight, cpyAvailPlates);
-      if (warn === 'notEnoughRoom') break;
-      combinations.push({ warn, calcdLoad, calcdPlates, roundOff });
-      cpyAvailPlates[0].quantity--;
-      if (cpyAvailPlates[0].quantity === 0) cpyAvailPlates.shift();
+    let subsets = calcSubsets(cpyAvailPlates); // array of arrays of plateGroups
+    let memory = [];
+    for (let availPlateSubset of subsets) {
+      let cpyAvailPlateSubset = availPlateSubset.map(plateGroup => ({ ...plateGroup })); // arrays of plateGroups
+
+      while (cpyAvailPlateSubset.length > 0) {
+        memory.push({ ...cpyAvailPlateSubset.map(plateGroup => ({ ...plateGroup })) });
+        let { warn, calcdLoad, calcdPlates, roundOff } = this.calcPlatesHelper(
+          targetLoad,
+          barWeight,
+          cpyAvailPlateSubset
+        );
+        // if (warn === 'notEnoughRoom') break;
+        combinations.push({ warn, calcdLoad, calcdPlates, roundOff });
+
+        cpyAvailPlateSubset[0].quantity--;
+        if (cpyAvailPlateSubset[0].quantity <= 0) cpyAvailPlateSubset.shift();
+      }
     }
+    console.log(memory);
 
     if (combinations.length === 0) return { success: false, warn: 'notEnoughRoom', calcdLoad: -1, calcdPlates: [] };
 
@@ -274,9 +303,11 @@ class App extends Component {
       .map(comb => ({ ...comb }))
       .filter(comb => comb.calcdPlates.length === minNumPlates);
 
-    console.log('combinations:', combinations);
-    console.log('validCombs:', validCombs);
-    console.log('leastRoundOffCombs:', leastRoundOffCombs);
+    // favor combinations that use larger plates
+
+    // console.log('combinations:', combinations);
+    // console.log('validCombs:', validCombs);
+    // console.log('leastRoundOffCombs:', leastRoundOffCombs);
     console.log('leastNumPlatesCombs:', leastNumPlatesCombs);
 
     const { calcdLoad, calcdPlates, roundOff: roundOffAmount } = leastNumPlatesCombs[0];
