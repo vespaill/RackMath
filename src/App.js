@@ -224,13 +224,10 @@ class App extends Component {
     /* Get the available plates and half their quantities. We're going to work
        with loading one side of the barbell. */
     let availPlates = [...this.state.availPlates[unit]];
-    availPlates = availPlates
-      .filter(({ quantity }) => quantity > 0)
-      .map(plate => {
-        const { value, color, quantity } = plate;
-        return { value, color, quantity: quantity / 2 };
-      });
-
+    availPlates = availPlates.filter(({ quantity }) => quantity > 0).map(plate => {
+      const { value, color, quantity } = plate;
+      return { value, color, quantity: quantity / 2 };
+    });
     const { valid, errMsg } = this.validateLoad(load, barbellWeight, availPlates);
     const prevCalcdLoad = this.state.calcdLoad;
 
@@ -238,20 +235,13 @@ class App extends Component {
       this.setState({ calcdPlates: [], calcdLoad: -1, prevCalcdLoad });
       toast.error(errMsg);
     } else {
-      const { success, warn, calcdLoad, calcdPlates, roundOff } = this.calculatePlates(
-        load,
-        barbellWeight,
-        availPlates
-      );
-
+      const { success, warn, calcdLoad, calcdPlates, roundOff } = this.calculatePlates(load,barbellWeight,availPlates);
       if (warn === 'justbar') toast.success('Just the bar!');
       else if (warn === 'roundoff') {
-        const updown = roundOff.up ? 'up' : 'down';
-        toast.warn(`Your inventory doesn't work with that weight. Rounded ${updown} by ${roundOff.amount} ${unit}.`);
+        toast.warn(`Inventory limitation—Load rounded ${roundOff.up ? 'up' : 'down'} by ${roundOff.amount} ${unit}.`);
       } else if (warn === 'notEnoughRoom') toast.error('Not enough room on the bar!');
 
       if (success) {
-        // const calcdLoad = calcdPlates.reduce((acc, cur) => acc + cur.value, 0) * 2 + barbellWeight;
         this.setState({ calcdPlates, calcdLoad, prevCalcdLoad });
       } else this.setState({ calcdPlates: [], calcdLoad: -1, prevCalcdLoad });
     }
@@ -267,58 +257,60 @@ class App extends Component {
   calculatePlates = (targetLoad, barWeight, availPlates) => {
     const success = true;
     if (targetLoad - barWeight === 0) return { success, warn: 'justbar', calcdLoad: barWeight, calcdPlates: [] };
+
+    // console.log('available plates:', availPlates);
     let cpyAvailPlates = availPlates.map(plate => ({ ...plate }));
     let combinations = [];
-
     let subsets = calcSubsets(cpyAvailPlates); // array of arrays of plateGroups
-    let memory = [];
+    // console.log('all subsets of available plates:', subsets);
+
     for (let availPlateSubset of subsets) {
       let cpyAvailPlateSubset = availPlateSubset.map(plateGroup => ({ ...plateGroup })); // arrays of plateGroups
-
       while (cpyAvailPlateSubset.length > 0) {
-        memory.push({ ...cpyAvailPlateSubset.map(plateGroup => ({ ...plateGroup })) });
-        let { warn, calcdLoad, calcdPlates, roundOff } = this.calcPlatesHelper(
-          targetLoad,
-          barWeight,
-          cpyAvailPlateSubset
-        );
+        let { warn, calcdLoad, calcdPlates, roundOff } = this.calcPlatesHelper(targetLoad,barWeight,cpyAvailPlateSubset);
         // if (warn === 'notEnoughRoom') break;
-        combinations.push({ warn, calcdLoad, calcdPlates, roundOff });
-
+        const combProps = {
+          ...(warn !== undefined) && {warn},
+          ...(calcdLoad !== undefined) && {calcdLoad},
+          ...(calcdPlates !== undefined) && {calcdPlates},
+          ...(roundOff !== undefined) && {roundOff}
+        }
+        combinations.push({ ...combProps });
         cpyAvailPlateSubset[0].quantity--;
         if (cpyAvailPlateSubset[0].quantity <= 0) cpyAvailPlateSubset.shift();
       }
     }
-    console.log(memory);
 
-    if (combinations.length === 0) return { success: false, warn: 'notEnoughRoom', calcdLoad: -1, calcdPlates: [] };
+    if (combinations.length === 0) return { success: false, warn: 'notEnoughRoom' };
 
     const validCombs = combinations.map(comb => ({ ...comb })).filter(comb => comb.warn === undefined);
     const minRoundOff = validCombs.reduce((prev, cur) => (prev.roundOff < cur.roundOff ? prev : cur)).roundOff;
     const leastRoundOffCombs = validCombs.map(comb => ({ ...comb })).filter(comb => comb.roundOff === minRoundOff);
-    const minNumPlates = leastRoundOffCombs.reduce((prev, cur) =>
-      prev.calcdPlates.length < cur.calcdPlates.length ? prev : cur
-    ).calcdPlates.length;
-    const leastNumPlatesCombs = leastRoundOffCombs
-      .map(comb => ({ ...comb }))
-      .filter(comb => comb.calcdPlates.length === minNumPlates);
-
-    // favor combinations that use larger plates
+    const minNumPlates = leastRoundOffCombs.reduce((prev, cur) => prev.calcdPlates.length < cur.calcdPlates.length ? prev : cur).calcdPlates.length;
+    const leastNumPlatesCombs = leastRoundOffCombs.map(comb => ({ ...comb })).filter(comb => comb.calcdPlates.length === minNumPlates);
+    const favorsHeavierPlates = leastNumPlatesCombs.reduce((prev, cur) => {
+      const prevHeaviestPlate = prev.calcdPlates.reduce((prev,cur) => prev.value > cur.value? prev:cur).value;
+      const curHeaviestPlate = cur.calcdPlates.reduce((prev,cur) => prev.value > cur.value? prev:cur).value;
+      if (prevHeaviestPlate === curHeaviestPlate) {
+        const prevHeaviestCount = prev.calcdPlates.reduce((acc, cur) => cur.value === prevHeaviestPlate? acc + 1 : acc, 0);
+        const curHeaviestPlate = cur.calcdPlates.reduce((acc, cur) => cur.value === prevHeaviestPlate? acc + 1 : acc, 0);
+        return  prevHeaviestCount > curHeaviestPlate? prev : cur;
+      }
+      return prevHeaviestPlate > curHeaviestPlate? prev : cur;
+    });
 
     // console.log('combinations:', combinations);
-    // console.log('validCombs:', validCombs);
-    // console.log('leastRoundOffCombs:', leastRoundOffCombs);
-    console.log('leastNumPlatesCombs:', leastNumPlatesCombs);
+    // console.log('valid combinations:', validCombs);
+    // console.log('least round off:', leastRoundOffCombs);
+    // console.log('least number of plates:', leastNumPlatesCombs);
+    // console.log('favorsHeavierPlates:', favorsHeavierPlates);
 
-    const { calcdLoad, calcdPlates, roundOff: roundOffAmount } = leastNumPlatesCombs[0];
+    const { calcdLoad, calcdPlates, roundOff: roundOffAmount } = favorsHeavierPlates;
     let warn, roundOff;
     if (roundOffAmount) {
       warn = 'roundoff';
       roundOff = { amount: roundOffAmount, up: calcdLoad > targetLoad };
     }
-
-    // console.log('roundOff:', roundOff);
-
     return { success, calcdLoad, calcdPlates, roundOff, warn };
   };
 
@@ -337,7 +329,7 @@ class App extends Component {
         if (calcdLoad + nextLoad <= targetLoad || dif < smallestPlate) {
           calcdLoad += nextLoad;
           calcdPlates.push({ value, color });
-          if (calcdPlates.length > MAX_PLATES) return { warn: 'notEnoughRoom', calcdLoad: -1, calcdPlates: [] };
+          if (calcdPlates.length > MAX_PLATES) return { warn: 'notEnoughRoom' };
           plateGroup.quantity--;
         }
       }
