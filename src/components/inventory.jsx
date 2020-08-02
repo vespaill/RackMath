@@ -11,7 +11,7 @@ const Inventory = props => {
     <>
       <Header>
         <h1>Unit</h1>
-        <button className="btn-unit" variant="danger" onClick={e => onUnitClick(e)}>
+        <button className="btn-unit" onClick={e => onUnitClick(e)}>
           {unit}
         </button>
       </Header>

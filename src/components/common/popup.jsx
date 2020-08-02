@@ -1,6 +1,7 @@
 import React from 'react';
 import '../../css/popup.css';
 import Header from './header';
+import { Button } from 'react-bootstrap';
 
 const Popup = props => {
   const { show, onClose, children, header } = props;
@@ -9,9 +10,9 @@ const Popup = props => {
       <div className="popup__content">
         <Header mx={3} my={2}>
           <h1>{header}</h1>
-          <button className="close-btn btn btn-danger" onClick={() => onClose()}>
+          <Button className="close-btn" variant="danger" onClick={() => onClose()}>
             <div>&times;</div>
-          </button>
+          </Button>
         </Header>
         <div>{children}</div>
       </div>

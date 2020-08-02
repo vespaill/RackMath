@@ -9,12 +9,10 @@ const SetContainer = props => {
 
   return (
     <div className={'set-container d-flex justify-content-between' + workSetClass}>
-      <div className="percent-container">
-        <span className="percentage badge badge-warning">{Math.round(percentage * 100)}%</span>
-      </div>
-      <span className="set">{`${weight} ${unit} × ${numReps}`}</span>
+      <span className="percentage">{Math.round(percentage * 100)}%</span>
+      <span className="set">{`${weight} ${unit} \u00D7 ${numReps}`}</span>
       <Link to="/home">
-        <Button className="btn btn-dark" onClick={() => props.onClick(weight)}>
+        <Button variant="dark" onClick={() => props.onClick(weight)}>
           {btnText}
         </Button>
       </Link>

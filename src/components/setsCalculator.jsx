@@ -32,16 +32,13 @@ const SetsCalculator = props => {
         </div>
       </div>
       <Popup show={showPopUp} header={"Sets Toggler"} onClose={togglePopup}>
-        {percentages.map((percentages, index) => {
-          const { value, on } = percentages;
-          return (
-            <button
-              key={index}
-              onClick={() => props.togglePercentage(index)}
-              className={`mx-auto d-block mb-3 btn btn-${on ? 'success' : 'secondary'}`}
-            >{`${Math.round(value * 100)}%`}</button>
-          );
-        })}
+        {percentages.map(({ value, on }, index) => (
+          <button
+            key={index}
+            onClick={() => props.togglePercentage(index)}
+            className={`mx-auto d-block mb-3 font-weight-bold btn btn-${on ? 'warning' : 'secondary text-dark'}`}
+          >{`${Math.round(value * 100)}%`}</button>
+        ))}
       </Popup>
     </>
   );

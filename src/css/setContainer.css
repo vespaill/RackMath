@@ -8,9 +8,22 @@
   width: 100%;
 }
 
-.percent-container {
-  vertical-align: text-top;
+.percentage {
+  color: #000;
+  background-color: #ffc107;
+  font-weight: 700;
+  margin: auto 0;
+  padding: .25em .4em;
+  border-radius: .25rem;
+
+  /* display: inline-block; */
+  /* font-size: 75%; */
+  /* line-height: 1; */
+  /* text-align: center; */
+  /* white-space: nowrap; */
+  /* vertical-align: baseline; */
 }
+
 
 .set {
   margin: auto 0;

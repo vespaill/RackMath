@@ -17,7 +17,7 @@ const SetsCalcForm = props => {
       <InputGroup>
         <FormControl name="loadInput" placeholder={workWeight > 0? workWeight : "weight"} step="0.5" max={maxWeight} {...formControlProps} />
         <InputGroup.Append>
-          <InputGroup.Text>{unit} × </InputGroup.Text>
+          <InputGroup.Text>{unit} &times; </InputGroup.Text>
         </InputGroup.Append>
         <FormControl name="numRepsInput" placeholder="reps" max="999" step="1" defaultValue="5" {...formControlProps} />
       </InputGroup>
