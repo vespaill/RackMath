@@ -1,4 +1,13 @@
 .popup__container {
+  overflow: hidden;
+}
+
+.hide {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.popup__background {
   z-index: 10000;
   background-color: rgba(0, 0, 0, 0.5);
   filter: blur(5px);
@@ -6,18 +15,24 @@
   height: 100%;
 }
 
-.popup {
+.popup__card {
   z-index: 10001;
   width: 75%;
   height: 75%;
   background-color: #fff;
   border-radius: 10px;
+  overflow: hidden;
 }
 
-.animate-fadeIn {
+.close-mark {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+/* .animate-fadeIn {
   animation: fadeIn 0.5s;
 }
-
 .animate-fadeOut {
   animation: fadeOut 0.5s;
 }
@@ -47,10 +62,4 @@
   100% {
     opacity: 0;
   }
-}
-
-.close-mark {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-}
+} */
