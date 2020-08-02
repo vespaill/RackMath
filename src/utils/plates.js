@@ -112,7 +112,7 @@ const isValidComb = (targetLoad, barLoad, plateObjs) => {
  * @param {String} combinations[].calcdPlates[].color The color of the plate.
  */
 const findBestComb = combinations => {
-  console.log('combinations:', combinations);
+  // console.log('combinations:', combinations);
   const minRoundOff = combinations.reduce((prev, cur) => (prev.roundOff < cur.roundOff ? prev : cur)).roundOff;
   const combsMinRoundOff = combinations.map(comb => ({ ...comb })).filter(comb => comb.roundOff === minRoundOff);
   const minNumPlates = combsMinRoundOff.reduce((prev, cur) =>
@@ -137,9 +137,9 @@ const findBestComb = combinations => {
     }
     return prevHeaviestPlate > curHeaviestPlate ? prev : cur;
   });
-  console.log('least round off:', combsMinRoundOff);
-  console.log('least number of plates:', combsMinNumPlates);
-  console.log('favorsHeavierPlates:', combsHeaviestPlates);
+  // console.log('least round off:', combsMinRoundOff);
+  // console.log('least number of plates:', combsMinNumPlates);
+  // console.log('favorsHeavierPlates:', combsHeaviestPlates);
   return combsHeaviestPlates;
 };
 

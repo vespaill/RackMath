@@ -1,33 +1,45 @@
-.popup__container {
-  overflow: hidden;
-}
-
 .hide {
-  visibility: hidden;
-  opacity: 0;
+  display: none;
 }
 
-.popup__background {
+.popup {
   z-index: 10000;
-  background-color: rgba(0, 0, 0, 0.5);
-  filter: blur(5px);
+  position: fixed;
   width: 100%;
   height: 100%;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  overflow: auto;
+  background-color: rgba(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
-.popup__card {
+.popup__content {
   z-index: 10001;
-  width: 75%;
-  height: 75%;
   background-color: #fff;
-  border-radius: 10px;
-  overflow: hidden;
+  margin: auto;
+  border-radius: 5px;
+  width: 80%;
+  overflow: auto;
+  position: relative;
 }
 
-.close-mark {
+.close-btn {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: 5px;
+  right: 5px;
+  font-size: 1.5rem;
+  text-align: center;
+  padding: 0 0.7rem;
+  height: 25px;
+}
+
+.close-btn > * {
+  position: absolute;
+  top: 37%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 /* .animate-fadeIn {

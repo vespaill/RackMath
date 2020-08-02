@@ -15,7 +15,7 @@ const Loader = props => {
     if (from === 'navBar') resetPrevLoad();
   }, [from, resetPrevLoad]);
 
-  return (from === 'navBar') ? (
+  return from === 'navBar' ? (
     <Redirect to="/home" />
   ) : (
     <>

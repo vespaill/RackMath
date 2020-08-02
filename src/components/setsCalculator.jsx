@@ -1,19 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import SetsCalcForm from './setsCalcForm';
 import SetContainer from './setContainer';
-import '../css/setsCalculator.css';
 import Header from './common/header';
+import Popup from './common/popup';
+import '../css/setsCalculator.css';
 
 const SetsCalculator = props => {
-  const { workWeight, workNumReps, warmUpSets, unit, onSubmit, onLoad } = props;
+  const { workWeight, workNumReps, warmUpSets, percentages, unit, onSubmit, onLoad } = props;
   const contProps = { unit, onClick: onLoad };
-  const workWeightContProps = {
-    percentage: 1,
-    weight: workWeight,
-    numReps: workNumReps,
-    isWorkingSet: true,
-    btnText: 'Start'
-  };
+  const workWeightContProps = { percentage: 1, weight: workWeight, numReps: workNumReps, isWorkingSet: true, btnText: 'Start' };
+  const [showPopUp, setShowPopUp] = useState(false);
+  const togglePopup = () => { setShowPopUp(!showPopUp); };
+  const formProps = { unit, onSubmit, onSettings: togglePopup, workWeight, btnText: 'Calculate' };
 
   return (
     <>
@@ -22,7 +20,7 @@ const SetsCalculator = props => {
           <h1>Warm Up Sets Calculator</h1>
         </a>
       </Header>
-      <SetsCalcForm unit={unit} onSubmit={onSubmit} btnText='Calculate' />
+      <SetsCalcForm {...formProps} />
       <div className="setList-container">
         <div className="setList mx-auto">
           {warmUpSets.map((set, index) => {
@@ -33,7 +31,18 @@ const SetsCalculator = props => {
           {workWeight !== -1 && <SetContainer {...contProps} {...workWeightContProps} />}
         </div>
       </div>
-      {/* <div className="popup" id="popup"></div> */}
+      <Popup show={showPopUp} header={"Sets Toggler"} onClose={togglePopup}>
+        {percentages.map((percentages, index) => {
+          const { value, on } = percentages;
+          return (
+            <button
+              key={index}
+              onClick={() => props.togglePercentage(index)}
+              className={`mx-auto d-block mb-3 btn btn-${on ? 'success' : 'secondary'}`}
+            >{`${Math.round(value * 100)}%`}</button>
+          );
+        })}
+      </Popup>
     </>
   );
 };

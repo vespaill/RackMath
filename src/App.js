@@ -72,7 +72,14 @@ class App extends Component {
     prevCalcdLoad: -1,
 
     // Warm Up related
-    percentages: [0.5, 0.6, 0.7, 0.8, 0.9, 1.1],
+    percentages: [
+      { value: 0.5, on: true },
+      { value: 0.6, on: true },
+      { value: 0.7, on: true },
+      { value: 0.8, on: true },
+      { value: 0.9, on: true },
+      { value: 1.1, on: true }
+    ],
     workWeight: -1,
     workNumReps: -1,
     warmUpSets: [
@@ -82,7 +89,7 @@ class App extends Component {
 
   componentDidMount() {
     let availPlates = {};
-    // Give plates a color property.
+    // Give plates color.
     ['lbs', 'kg'].forEach(unit => {
       availPlates[unit] = this.state.availPlates[unit].map((plate, index) => ({
         ...plate,
@@ -93,11 +100,11 @@ class App extends Component {
   }
 
   render() {
-    const { unit, barbell, availPlates, calcdPlates, calcdLoad, prevCalcdLoad, workWeight, workNumReps, warmUpSets } = this.state;
+    const { unit, barbell, availPlates, calcdPlates, calcdLoad, prevCalcdLoad, workWeight, workNumReps, warmUpSets, percentages } = this.state;
     const loaderProps = { unit, barbellWeight: barbell[unit], calcdPlates, calcdLoad, prevCalcdLoad, onSubmit: this.handleLoadSubmit, resetPrevLoad: this.resetPrevLoad };
     const invProps = { unit, barbell, availPlates, onPlateGroupClick: this.handlePlateGroupClick, onUnitClick: this.handleUnitClick, onClear: this.handlePlateGroupsClear };
-    const setsCalcProps = { unit, workWeight, workNumReps, warmUpSets, onSubmit: this.handleWorkSetSubmit, onLoad: this.handleLoad };
-    const toastProps = { /* limit: 1, */ autoClose: 1000, hideProgressBar: true, pauseOnFocusLoss: false, draggable: false, pauseOnHover: false, newestOnTop: true };
+    const setsCalcProps = { unit, workWeight, workNumReps, warmUpSets, onSubmit: this.handleWorkSetSubmit, onLoad: this.handleLoad, percentages, togglePercentage: this.handleTogglePercentage };
+    const toastProps = { /* limit: 1, */ autoClose: 2000, hideProgressBar: true, pauseOnFocusLoss: false, draggable: false, pauseOnHover: false, newestOnTop: true };
     return (
       <>
         <div className="container" style={{ paddingBottom: '70px' }}>
@@ -136,8 +143,7 @@ class App extends Component {
 
   handleLoadSubmit = e => {
     e.preventDefault();
-    // Blur in order to hide keyboard on mobile.
-    e.currentTarget.firstElementChild.firstElementChild.blur();
+    e.currentTarget.firstElementChild.firstElementChild.blur();  // Blur in order to hide keyboard on mobile.
     this.handleLoad(e.currentTarget.loadInput.value);
     // e.currentTarget.loadInput.value = '';
   };
@@ -153,28 +159,28 @@ class App extends Component {
 
       this.setState({ calcdPlates: [], calcdLoad: -1, prevCalcdLoad });
       if (load < barLoad) toast.error("That's not even the bar!");
-      else if (load > maxLoad) toast.error("Your inventory doesn't work with that weight");
+      else if (load > maxLoad) toast.error('Exceeded maximum allowed by inventory!');
 
     } else {
       const { success, warn, calcdLoad, calcdPlates, roundOff } = calculatePlates(load, barLoad, avlPltsOneSide);
 
       if (warn === 'justbar') toast.success('Just the bar!');
-      else if (warn === 'roundoff') {
-        toast.warn(`Inventory limitation—Load rounded ${roundOff.up ? 'up' : 'down'} by ${roundOff.amount} ${unit}.`);
-      } else if (warn === 'notEnoughRoom') toast.error('Not enough room on the bar!');
+      else if (warn === 'roundoff') toast.warn(`Inventory limitation—Load rounded ${roundOff.up ? 'up' : 'down'} by ${roundOff.amount} ${unit}.`);
+      else if (warn === 'notEnoughRoom') toast.error('Too many plates to fit on barbell!');
 
-      if (success) {
-        console.log('warn:' ,warn);
-        this.setState({ calcdPlates, calcdLoad, prevCalcdLoad });
-      } else this.setState({ calcdPlates: [], calcdLoad: -1, prevCalcdLoad });
+      if (success) this.setState({ calcdPlates, calcdLoad, prevCalcdLoad });
+      else this.setState({ calcdPlates: [], calcdLoad: -1, prevCalcdLoad });
     }
   };
 
   handleWorkSetSubmit = e => {
     e.preventDefault();
     e.currentTarget.firstElementChild.querySelectorAll('input').forEach(elem => { elem.blur(); });
-    const { value: workWeight } = e.currentTarget.loadInput;
-    const { value: workNumReps } = e.currentTarget.numRepsInput;
+    const { loadInput, numRepsInput } = e.currentTarget;
+    this.updateWarmUpSets(loadInput.value, numRepsInput.value);
+  };
+
+  updateWarmUpSets = (workWeight, workNumReps) => {
     if (workWeight && workNumReps) {
       const warmUpSets = [];
       const { percentages, unit, barbell, availPlates } = this.state;
@@ -182,9 +188,12 @@ class App extends Component {
       const lightestPlateAvail = availPlates[unit].filter(plate => plate.quantity > 0).map(plate => plate.value).reduce((prev, cur) => (prev < cur ? prev : cur));
       // console.log('handleWorkSetSubmit(): lightestPlate =', lightestPlateAvail);
       percentages.forEach(percentage => {
-        const weight = roundToNearestStep(workWeight * percentage, barbellWeight, lightestPlateAvail * 2);
-        const numReps = calcRampUpReps(percentage, workNumReps)
-        warmUpSets.push({ percentage, weight, numReps });
+        const { value, on } = percentage;
+        if (on) {
+          const weight = roundToNearestStep(workWeight * value, barbellWeight, lightestPlateAvail * 2);
+          const numReps = calcRampUpReps(value, workNumReps);
+          warmUpSets.push({ percentage: value, weight, numReps });
+        }
       });
       this.setState({ workWeight, workNumReps, warmUpSets });
     } else this.setState({ workWeight: -1, workNumReps: -1, warmUpSets: [] });
@@ -199,6 +208,14 @@ class App extends Component {
 
   resetPrevLoad = () => {
     this.setState({ prevCalcdLoad: -1 });
+  };
+
+  handleTogglePercentage = index => {
+    const percentages = [...this.state.percentages];
+    percentages[index].on = !percentages[index].on;
+    this.setState({ percentages });
+    const { workWeight, workNumReps } = this.state;
+    if (workWeight > 0 && workNumReps > 0) this.updateWarmUpSets(workWeight, workNumReps);
   };
 }
 
