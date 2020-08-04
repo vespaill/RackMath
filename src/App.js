@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
+import localStorage from 'local-storage';
 import NavBar from './components/navBar';
 import Inventory from './components/inventory';
 import NotFound from './components/common/notFound';
@@ -18,10 +19,20 @@ import './css/toastify.css';
 
 class App extends Component {
   state = {
-    // Inventory related
-    unit: 'lbs',
     barbell: { lbs: 45, kg: 20 },
-    availPlates: {
+    calcdPlates: [],
+    calcdLoad: -1,
+    prevCalcdLoad: -1,
+
+    workWeight: -1,
+    workNumReps: -1,
+    warmUpSets: [/* {percentage, weight, numReps}, ... */]
+  };
+
+  constructor(props) {
+    super(props);
+
+    let defaultAvailPlates = {
       lbs: [
         { value: 100, quantity: 0 },
         { value: 65, quantity: 0 },
@@ -66,37 +77,26 @@ class App extends Component {
         { value: 0.5, quantity: 0 },
         { value: 0.25, quantity: 0 }
       ]
-    },
-    calcdPlates: [],
-    calcdLoad: -1,
-    prevCalcdLoad: -1,
-
-    // Warm Up related
-    percentages: [
+    };
+    // Give plates color.
+    ['lbs', 'kg'].forEach(unit => {
+      defaultAvailPlates[unit] = defaultAvailPlates[unit].map((plate, index) => {
+        const color = calcBgColor(index);
+        return { ...plate, color };
+      });
+    });
+    const defaultPercentages = [
       { value: 0.5, on: true },
       { value: 0.6, on: true },
       { value: 0.7, on: true },
       { value: 0.8, on: true },
       { value: 0.9, on: true },
       { value: 1.1, on: true }
-    ],
-    workWeight: -1,
-    workNumReps: -1,
-    warmUpSets: [
-      /* {percentage, weight, numReps}, ... */
-    ]
-  };
+    ];
 
-  componentDidMount() {
-    let availPlates = {};
-    // Give plates color.
-    ['lbs', 'kg'].forEach(unit => {
-      availPlates[unit] = this.state.availPlates[unit].map((plate, index) => ({
-        ...plate,
-        color: calcBgColor(index)
-      }));
-    });
-    this.setState({ availPlates });
+    this.state.unit = localStorage.get('unit') || 'lbs';
+    this.state.percentages = localStorage.get('percentages') || defaultPercentages;
+    this.state.availPlates = localStorage.get('availPlates') || defaultAvailPlates;
   }
 
   render() {
@@ -131,19 +131,24 @@ class App extends Component {
     this.setState({ unit, calcdPlates: [], calcdLoad: -1, prevCalcdLoad: -1, workWeight: -1, warmUpSets: [] });
     e.currentTarget.classList.add('animate-wiggle');
     e.currentTarget.classList.remove('animate-wiggle');
+    localStorage.set('unit', unit);
   };
 
   handlePlateGroupClick = value => {
     const { unit } = this.state;
     const availPlates = { ...this.state.availPlates };
     const i = availPlates[unit].findIndex(element => element.value === value);
-    availPlates[unit][i].quantity = (availPlates[unit][i].quantity + 2) % (MAX_PLATES + 2);
+
+    const quant = availPlates[unit][i].quantity;
+    availPlates[unit][i].quantity = quant === 0 ? MAX_PLATES : quant - 2;
+
     this.setState({ availPlates, calcdPlates: [], calcdLoad: -1, prevCalcdLoad: -1 });
+    localStorage.set('availPlates', availPlates);
   };
 
   handleLoadSubmit = e => {
     e.preventDefault();
-    e.currentTarget.firstElementChild.firstElementChild.blur();  // Blur in order to hide keyboard on mobile.
+    e.currentTarget.firstElementChild.firstElementChild.blur(); // Blur in order to hide keyboard on mobile.
     this.handleLoad(e.currentTarget.loadInput.value);
     // e.currentTarget.loadInput.value = '';
   };
@@ -156,16 +161,15 @@ class App extends Component {
     const maxLoad = barLoad + 2 * avlPltsOneSide.reduce((acc, cur) => acc + cur.value * cur.quantity, 0);
 
     if (!withinRange(load, barLoad, maxLoad)) {
-
       this.setState({ calcdPlates: [], calcdLoad: -1, prevCalcdLoad });
       if (load < barLoad) toast.error("That's not even the bar!");
       else if (load > maxLoad) toast.error('Exceeded maximum allowed by inventory!');
-
     } else {
       const { success, warn, calcdLoad, calcdPlates, roundOff } = calculatePlates(load, barLoad, avlPltsOneSide);
 
       if (warn === 'justbar') toast.success('Just the bar!');
-      else if (warn === 'roundoff') toast.warn(`Inventory limitation—Load rounded ${roundOff.up ? 'up' : 'down'} by ${roundOff.amount} ${unit}.`);
+      else if (warn === 'roundoff')
+        toast.warn(`Inventory limitation—Load rounded ${roundOff.up ? 'up' : 'down'} by ${roundOff.amount} ${unit}.`);
       else if (warn === 'notEnoughRoom') toast.error('Too many plates to fit on barbell!');
 
       if (success) this.setState({ calcdPlates, calcdLoad, prevCalcdLoad });
@@ -175,7 +179,9 @@ class App extends Component {
 
   handleWorkSetSubmit = e => {
     e.preventDefault();
-    e.currentTarget.firstElementChild.querySelectorAll('input').forEach(elem => { elem.blur(); });
+    e.currentTarget.firstElementChild.querySelectorAll('input').forEach(elem => {
+      elem.blur();
+    });
     const { loadInput, numRepsInput } = e.currentTarget;
     this.updateWarmUpSets(loadInput.value, numRepsInput.value);
   };
@@ -185,7 +191,10 @@ class App extends Component {
       const warmUpSets = [];
       const { percentages, unit, barbell, availPlates } = this.state;
       const barbellWeight = barbell[unit];
-      const lightestPlateAvail = availPlates[unit].filter(plate => plate.quantity > 0).map(plate => plate.value).reduce((prev, cur) => (prev < cur ? prev : cur));
+      const lightestPlateAvail = availPlates[unit]
+        .filter(plate => plate.quantity > 0)
+        .map(plate => plate.value)
+        .reduce((prev, cur) => (prev < cur ? prev : cur));
       // console.log('handleWorkSetSubmit(): lightestPlate =', lightestPlateAvail);
       percentages.forEach(percentage => {
         const { value, on } = percentage;
@@ -204,6 +213,7 @@ class App extends Component {
     let availPlates = { ...this.state.availPlates };
     availPlates[unit] = availPlates[unit].map(({ value, color }) => ({ value, color, quantity: 0 }));
     this.setState({ availPlates });
+    localStorage.set('availPlates', availPlates);
   };
 
   resetPrevLoad = () => {
@@ -214,6 +224,9 @@ class App extends Component {
     const percentages = [...this.state.percentages];
     percentages[index].on = !percentages[index].on;
     this.setState({ percentages });
+    localStorage.set('percentages', percentages);
+
+    // Update in order to trigger a re-render of the warm up sets.
     const { workWeight, workNumReps } = this.state;
     if (workWeight > 0 && workNumReps > 0) this.updateWarmUpSets(workWeight, workNumReps);
   };

@@ -4,7 +4,6 @@ import { Row } from 'react-bootstrap';
 const Header = props => {
   const { children, my, mx } = props;
   const textJustify = React.Children.count(children) > 1 ? 'between' : 'center';
-
   const myC = 'my-' + (my ? my : '1');
   const mxC = 'mx-' + (mx ? mx : '3');
 
