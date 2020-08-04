@@ -46,6 +46,8 @@
 .plate-container {
   position: absolute;
   top: 50%;
+  transform: translateX(500px);
+  opacity: 0;
 }
 
 .plate-container__plate {

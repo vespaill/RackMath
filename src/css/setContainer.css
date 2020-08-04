@@ -6,6 +6,8 @@
   margin: 10px;
   position: relative;
   width: 100%;
+  opacity: 0;
+  transform: translate(-500px);
 }
 
 .percentage {
@@ -13,8 +15,8 @@
   background-color: #ffc107;
   font-weight: 700;
   margin: auto 0;
-  padding: .25em .4em;
-  border-radius: .25rem;
+  padding: 0.25em 0.4em;
+  border-radius: 0.25rem;
 
   /* display: inline-block; */
   /* font-size: 75%; */
@@ -24,12 +26,11 @@
   /* vertical-align: baseline; */
 }
 
-
 .set {
   margin: auto 0;
   font-weight: bold;
 }
 
 .working-weight {
-  background-color: #9370DB !important;
+  background-color: #9370db !important;
 }

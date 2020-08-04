@@ -1,4 +1,5 @@
-const MAX_PLATES = 8;
+const INV_MAX_PLATES = 16;
+const SLEEVE_MAX_PLATES = 8;
 
 /**
  *
@@ -88,7 +89,7 @@ const isValidComb = (targetLoad, barLoad, plateObjs) => {
       if (calcdLoad + nextLoad < targetLoad || dif < lightestPlate) {
         calcdLoad += nextLoad;
         calcdPlates.push({ value, color });
-        if (calcdPlates.length > MAX_PLATES) return { success: false };
+        if (calcdPlates.length > SLEEVE_MAX_PLATES) return { success: false };
         plateGroup.quantity--;
       }
     }
@@ -189,4 +190,4 @@ const modQuantity = (plateObjs, modifier) => {
     });
 };
 
-export { MAX_PLATES, modQuantity, withinRange, calculatePlates };
+export { INV_MAX_PLATES, modQuantity, withinRange, calculatePlates };

@@ -19,38 +19,3 @@
 .load-value__cur {
   right: 10000px;
 }
-
-@keyframes slideOutToLeft {
-  0% {
-    right: 10px;
-  }
-  100% {
-    right: 500px;
-    visibility: hidden;
-  }
-}
-
-@keyframes slideInFromLeft {
-  0% {
-    right: -200px;
-  }
-  100% {
-    right: 10px;
-  }
-}
-
-.animate-leave {
-  animation-duration: 0.25s;
-  animation-name: slideOutToLeft;
-  animation-fill-mode: forwards;
-  animation-timing-function: cubic-bezier(0.36, 0, 0.66, -0.56);
-  animation-delay: 0.1s;
-}
-
-.animate-enter {
-  animation-duration: 0.25s;
-  animation-name: slideInFromLeft;
-  animation-fill-mode: forwards;
-  animation-timing-function: cubic-bezier(0.68, -0.6, 0.32, 1.6);;
-  animation-delay: 0.25s;
-}

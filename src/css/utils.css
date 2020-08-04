@@ -30,6 +30,24 @@
 .bg-cyan {
   background-color: #5bc0de;
 }
+@keyframes slideOutToLeft {
+  0% {
+    right: 10px;
+  }
+  100% {
+    right: 500px;
+    visibility: hidden;
+  }
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    right: -200px;
+  }
+  100% {
+    right: 10px;
+  }
+}
 
 @keyframes wiggle {
   0% {
@@ -44,4 +62,61 @@
   100% {
     transform: translateX(0%);
   }
+}
+
+@keyframes slideInAndBounce {
+  0% {
+    transform: translateX(500px);
+  }
+  33.33% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  66.67% {
+    transform: translateX(5px);
+  }
+  100% {
+    transform: translateX(0);
+
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(500px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-and-bounce {
+  animation-name: slideInAndBounce;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+}
+
+.animate-slide-in {
+  animation-name: slideIn;
+  animation-duration: 0.25s;
+  animation-fill-mode: forwards;
+}
+
+.animate-leave {
+  animation-duration: 0.25s;
+  animation-name: slideOutToLeft;
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(0.36, 0, 0.66, -0.56);
+  animation-delay: 0.1s;
+}
+
+.animate-enter {
+  animation-duration: 0.25s;
+  animation-name: slideInFromLeft;
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(0.68, -0.6, 0.32, 1.6);;
+  animation-delay: 0.25s;
 }

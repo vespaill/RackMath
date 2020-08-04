@@ -1,11 +1,10 @@
 import React from 'react';
 import { limitPlateHeight } from '../utils/limitPlateHeight';
+import shortid from 'shortid';
 import '../css/loadDiagram.css';
-import LoadValue from './loadValue';
 
 const LoadDiagram = props => {
-  const { unit, barbellWeight, calcdPlates, calcdLoad, prevCalcdLoad } = props;
-  const loadValProps = { unit, calcdLoad, prevCalcdLoad };
+  const { barbellWeight, calcdPlates } = props;
 
   return (
     <>
@@ -17,7 +16,11 @@ const LoadDiagram = props => {
         <div className="load__plate-group">
           <div style={{ opacity: '0px' }} className="plate-container" />
           {calcdPlates.map((plate, index) => (
-            <div key={index} className="plate-container" style={{ left: `${index * 32 + 32}px` }}>
+            <div
+              key={shortid.generate()}
+              className="plate-container animate-slide-in-and-bounce"
+              style={{ left: `${index * 32 + 32}px`, animationDelay: `${index*0.1}s` }}
+            >
               <div
                 className={`plate-container__plate center-vertically bg-${plate.color}`}
                 style={{ height: `${limitPlateHeight(plate.value * 7, 45, 315)}px` }}
@@ -27,7 +30,6 @@ const LoadDiagram = props => {
           ))}
         </div>
       </div>
-      <LoadValue {...loadValProps} />
     </>
   );
 };

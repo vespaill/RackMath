@@ -3,11 +3,12 @@ import SetsCalcForm from './setsCalcForm';
 import SetContainer from './setContainer';
 import Header from './common/header';
 import Popup from './common/popup';
+import shortid from 'shortid';
 import '../css/setsCalculator.css';
 
 const SetsCalculator = props => {
   const { workWeight, workNumReps, warmUpSets, percentages, unit, onSubmit, onLoad } = props;
-  const contProps = { unit, onClick: onLoad };
+  const contProps = { unit, onClick: onLoad, animationDelay: `${warmUpSets.length*0.05}s` };
   const workWeightContProps = { percentage: 1, weight: workWeight, numReps: workNumReps, isWorkingSet: true, btnText: 'Start' };
   const [showPopUp, setShowPopUp] = useState(false);
   const togglePopup = () => { setShowPopUp(!showPopUp); };
@@ -25,10 +26,10 @@ const SetsCalculator = props => {
         <div className="setList mx-auto">
           {warmUpSets.map((set, index) => {
             const { percentage, weight, numReps } = set;
-            const additionalProps = { percentage, weight, numReps };
-            return <SetContainer key={index} btnText="Load" {...contProps} {...additionalProps} />;
+            const additionalProps = { percentage, weight, numReps, animationDelay: `${index*0.05}s` };
+            return <SetContainer key={shortid.generate()} btnText="Load" {...contProps} {...additionalProps} />;
           })}
-          {workWeight !== -1 && <SetContainer {...contProps} {...workWeightContProps} />}
+          {workWeight !== -1 && <SetContainer key={shortid.generate()} {...contProps} {...workWeightContProps} />}
         </div>
       </div>
       <Popup show={showPopUp} header={"Sets Toggler"} onClose={togglePopup}>
@@ -37,6 +38,7 @@ const SetsCalculator = props => {
             key={index}
             onClick={() => props.togglePercentage(index)}
             className={`mx-auto d-block mb-3 font-weight-bold btn btn-${on ? 'warning' : 'secondary text-dark'}`}
+            style={{animationDelay: `${index*0.1}s`}}
           >{`${Math.round(value * 100)}%`}</button>
         ))}
       </Popup>

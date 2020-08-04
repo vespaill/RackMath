@@ -10,7 +10,7 @@ import SetsCalculator from './components/setsCalculator';
 import About from './components/about';
 import { roundToNearestStep, calcRampUpReps } from './utils/rampUps';
 import { calcBgColor } from './utils/calcBgColor';
-import { MAX_PLATES, modQuantity, withinRange, calculatePlates } from './utils/plates';
+import { INV_MAX_PLATES, modQuantity, withinRange, calculatePlates } from './utils/plates';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './css/App.css';
@@ -26,7 +26,8 @@ class App extends Component {
 
     workWeight: -1,
     workNumReps: -1,
-    warmUpSets: [/* {percentage, weight, numReps}, ... */]
+    warmUpSets: [/* {percentage, weight, numReps}, ... */],
+    prevWarmUpSets: []
   };
 
   constructor(props) {
@@ -38,17 +39,17 @@ class App extends Component {
         { value: 65, quantity: 0 },
         { value: 55, quantity: 0 },
         { value: 50, quantity: 0 },
-        { value: 45, quantity: MAX_PLATES },
+        { value: 45, quantity: INV_MAX_PLATES },
         { value: 35, quantity: 0 },
         { value: 30, quantity: 0 },
-        { value: 25, quantity: MAX_PLATES },
+        { value: 25, quantity: INV_MAX_PLATES },
         { value: 20, quantity: 0 },
         { value: 15, quantity: 0 },
         { value: 12.5, quantity: 0 },
-        { value: 10, quantity: MAX_PLATES },
+        { value: 10, quantity: INV_MAX_PLATES },
         { value: 7.5, quantity: 0 },
-        { value: 5, quantity: MAX_PLATES },
-        { value: 2.5, quantity: MAX_PLATES },
+        { value: 5, quantity: INV_MAX_PLATES },
+        { value: 2.5, quantity: INV_MAX_PLATES },
         { value: 1.25, quantity: 0 },
         { value: 1, quantity: 0 },
         { value: 0.75, quantity: 0 },
@@ -61,17 +62,17 @@ class App extends Component {
         { value: 35, quantity: 0 },
         { value: 30, quantity: 0 },
         { value: 25, quantity: 0 },
-        { value: 20, quantity: MAX_PLATES },
+        { value: 20, quantity: INV_MAX_PLATES },
         { value: 15, quantity: 0 },
         { value: 12.5, quantity: 0 },
-        { value: 10, quantity: MAX_PLATES },
+        { value: 10, quantity: INV_MAX_PLATES },
         { value: 7.5, quantity: 0 },
-        { value: 5, quantity: MAX_PLATES },
+        { value: 5, quantity: INV_MAX_PLATES },
         { value: 3, quantity: 0 },
-        { value: 2.5, quantity: MAX_PLATES },
+        { value: 2.5, quantity: INV_MAX_PLATES },
         { value: 2, quantity: 0 },
         { value: 1.5, quantity: 0 },
-        { value: 1.25, quantity: MAX_PLATES },
+        { value: 1.25, quantity: INV_MAX_PLATES },
         { value: 1, quantity: 0 },
         { value: 0.75, quantity: 0 },
         { value: 0.5, quantity: 0 },
@@ -140,7 +141,7 @@ class App extends Component {
     const i = availPlates[unit].findIndex(element => element.value === value);
 
     const quant = availPlates[unit][i].quantity;
-    availPlates[unit][i].quantity = quant === 0 ? MAX_PLATES : quant - 2;
+    availPlates[unit][i].quantity = quant === 0 ? INV_MAX_PLATES : quant - 2;
 
     this.setState({ availPlates, calcdPlates: [], calcdLoad: -1, prevCalcdLoad: -1 });
     localStorage.set('availPlates', availPlates);
@@ -157,7 +158,7 @@ class App extends Component {
     const { unit } = this.state;
     const barLoad = this.state.barbell[unit];
     let avlPltsOneSide = modQuantity([...this.state.availPlates[unit]], 0.5);
-    const prevCalcdLoad = this.state.calcdLoad;
+    const prevCalcdLoad = this.state.calcdLoad; // Set prevLoad to curLoad
     const maxLoad = barLoad + 2 * avlPltsOneSide.reduce((acc, cur) => acc + cur.value * cur.quantity, 0);
 
     if (!withinRange(load, barLoad, maxLoad)) {
@@ -168,8 +169,7 @@ class App extends Component {
       const { success, warn, calcdLoad, calcdPlates, roundOff } = calculatePlates(load, barLoad, avlPltsOneSide);
 
       if (warn === 'justbar') toast.success('Just the bar!');
-      else if (warn === 'roundoff')
-        toast.warn(`Inventory limitation—Load rounded ${roundOff.up ? 'up' : 'down'} by ${roundOff.amount} ${unit}.`);
+      else if (warn === 'roundoff') toast.warn(`Inventory limitation—Load rounded ${roundOff.up ? 'up' : 'down'} by ${roundOff.amount} ${unit}.`);
       else if (warn === 'notEnoughRoom') toast.error('Too many plates to fit on barbell!');
 
       if (success) this.setState({ calcdPlates, calcdLoad, prevCalcdLoad });
@@ -179,23 +179,19 @@ class App extends Component {
 
   handleWorkSetSubmit = e => {
     e.preventDefault();
-    e.currentTarget.firstElementChild.querySelectorAll('input').forEach(elem => {
-      elem.blur();
-    });
+    // Blur all inputs.
+    e.currentTarget.firstElementChild.querySelectorAll('input').forEach(elem => { elem.blur(); });
     const { loadInput, numRepsInput } = e.currentTarget;
     this.updateWarmUpSets(loadInput.value, numRepsInput.value);
   };
 
   updateWarmUpSets = (workWeight, workNumReps) => {
     if (workWeight && workNumReps) {
+      const prevWarmUpSets = this.state.warmUpSets;
       const warmUpSets = [];
       const { percentages, unit, barbell, availPlates } = this.state;
       const barbellWeight = barbell[unit];
-      const lightestPlateAvail = availPlates[unit]
-        .filter(plate => plate.quantity > 0)
-        .map(plate => plate.value)
-        .reduce((prev, cur) => (prev < cur ? prev : cur));
-      // console.log('handleWorkSetSubmit(): lightestPlate =', lightestPlateAvail);
+      const lightestPlateAvail = availPlates[unit].filter(plate => plate.quantity > 0).map(plate => plate.value).reduce((prev, cur) => (prev < cur ? prev : cur));
       percentages.forEach(percentage => {
         const { value, on } = percentage;
         if (on) {
@@ -204,8 +200,8 @@ class App extends Component {
           warmUpSets.push({ percentage: value, weight, numReps });
         }
       });
-      this.setState({ workWeight, workNumReps, warmUpSets });
-    } else this.setState({ workWeight: -1, workNumReps: -1, warmUpSets: [] });
+      this.setState({ workWeight, workNumReps, warmUpSets, prevWarmUpSets });
+    } else this.setState({ workWeight: -1, workNumReps: -1, warmUpSets: [], prevWarmUpSets: [] });
   };
 
   handlePlateGroupsClear = () => {
