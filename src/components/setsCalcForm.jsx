@@ -5,11 +5,7 @@ import '../css/loadForm.css';
 
 const SetsCalcForm = props => {
   const { unit, onSubmit, btnText, onSettings, workWeight } = props;
-  const formControlProps = {
-    type: 'number',
-    min: '0',
-    onFocus: e => { e.currentTarget.select(); }
-  };
+  const formControlProps = { type: 'number', min: '0', onFocus: e => { e.currentTarget.select(); } };
   const maxWeight = unit === 'kg' ? 2840 : 7000;
 
   return (
