@@ -10,6 +10,7 @@ const LoaderForm = props => {
         <FormControl
           className="text-right"
           type="number"
+          inputmode="numeric"
           pattern="[0-9]*"
           name="loadInput"
           placeholder={props.placeholder}

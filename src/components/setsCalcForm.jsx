@@ -5,17 +5,24 @@ import '../css/loadForm.css';
 
 const SetsCalcForm = props => {
   const { unit, onSubmit, btnText, onSettings, workWeight } = props;
-  const formControlProps = { type: 'number', min: '0', pattern:'[0-9]*', onFocus: e => { e.currentTarget.select(); } };
+  const formControlProps = {
+    required: true,
+    type: 'number',
+    inputmode: 'numeric',
+    pattern:'[0-9]*',
+    min: '0',
+    onFocus: e => { e.currentTarget.select(); }
+  };
   const maxWeight = unit === 'kg' ? 2840 : 7000;
 
   return (
     <Form onSubmit={e => onSubmit(e)}>
       <InputGroup>
-        <FormControl name="loadInput" required placeholder={workWeight > 0? workWeight : "weight"} step="0.5" max={maxWeight} {...formControlProps} />
+        <FormControl name="loadInput" placeholder={workWeight > 0? workWeight : "weight"} step="0.5" max={maxWeight} {...formControlProps} />
         <InputGroup.Append>
           <InputGroup.Text>{unit} &times; </InputGroup.Text>
         </InputGroup.Append>
-        <FormControl name="numRepsInput" required placeholder="reps" max="999" step="1" defaultValue="5" {...formControlProps} />
+        <FormControl name="numRepsInput" placeholder="reps" max="999" step="1" defaultValue="5" {...formControlProps} />
       </InputGroup>
       <div className="button-group">
         <Button className="calc-btn" type="submit" variant="dark">
