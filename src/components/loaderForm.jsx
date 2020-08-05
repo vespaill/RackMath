@@ -10,6 +10,7 @@ const LoaderForm = props => {
         <FormControl
           className="text-right"
           type="number"
+          pattern="[0-9]*"
           name="loadInput"
           placeholder={props.placeholder}
           aria-label="weight"
