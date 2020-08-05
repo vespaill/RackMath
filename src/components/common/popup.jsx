@@ -1,7 +1,7 @@
 import React from 'react';
-import '../../css/popup.css';
 import Header from './header';
 import { Button } from 'react-bootstrap';
+import '../../css/popup.css';
 
 const Popup = props => {
   const { show, onClose, children, header } = props;

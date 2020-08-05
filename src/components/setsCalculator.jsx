@@ -10,8 +10,8 @@ const SetsCalculator = props => {
   const { workWeight, workNumReps, warmUpSets, percentages, unit, onSubmit, onLoad } = props;
   const contProps = { unit, onClick: onLoad, animationDelay: `${warmUpSets.length*0.05}s` };
   const workWeightContProps = { percentage: 1, weight: workWeight, numReps: workNumReps, isWorkingSet: true, btnText: 'Start' };
-  const [showPopUp, setShowPopUp] = useState(false);
-  const togglePopup = () => { setShowPopUp(!showPopUp); };
+  const [showPopup, setShowPopup] = useState(false);
+  const togglePopup = () => { setShowPopup(!showPopup); };
   const formProps = { unit, onSubmit, onSettings: togglePopup, workWeight, btnText: 'Calculate' };
 
   return (
@@ -22,23 +22,25 @@ const SetsCalculator = props => {
         </a>
       </Header>
       <SetsCalcForm {...formProps} />
-      <div className="setList-container">
-        <div className="setList mx-auto">
-          {warmUpSets.map((set, index) => {
-            const { percentage, weight, numReps } = set;
-            const additionalProps = { percentage, weight, numReps, animationDelay: `${index*0.05}s` };
-            return <SetContainer key={shortid.generate()} btnText="Load" {...contProps} {...additionalProps} />;
-          })}
-          {workWeight !== -1 && <SetContainer key={shortid.generate()} {...contProps} {...workWeightContProps} />}
+      {!showPopup && (
+        <div className="setList-container">
+          <div className="setList mx-auto">
+            {warmUpSets.map((set, index) => {
+              const { percentage, weight, numReps } = set;
+              const additionalProps = { percentage, weight, numReps, animationDelay: `${index * 0.05}s` };
+              return <SetContainer key={shortid.generate()} btnText="Load" {...contProps} {...additionalProps} />;
+            })}
+            {workWeight !== -1 && <SetContainer key={shortid.generate()} {...contProps} {...workWeightContProps} />}
+          </div>
         </div>
-      </div>
-      <Popup show={showPopUp} header={"Sets Toggler"} onClose={togglePopup}>
+      )}
+      <Popup show={showPopup} header={"Sets Toggler"} onClose={togglePopup}>
         {percentages.map(({ value, on }, index) => (
           <button
             key={index}
             onClick={() => props.togglePercentage(index)}
             className={`mx-auto d-block mb-3 font-weight-bold btn btn-${on ? 'warning' : 'secondary text-dark'}`}
-            style={{animationDelay: `${index*0.1}s`}}
+            style={{ animationDelay: `${index*0.1}s` }}
           >{`${Math.round(value * 100)}%`}</button>
         ))}
       </Popup>

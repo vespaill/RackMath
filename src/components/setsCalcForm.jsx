@@ -8,8 +8,8 @@ const SetsCalcForm = props => {
   const formControlProps = {
     required: true,
     type: 'number',
-    inputmode: 'numeric',
-    pattern:'[0-9]*',
+    inputMode: 'numeric',
+    pattern: '[0-9]*',
     min: '0',
     onFocus: e => { e.currentTarget.select(); }
   };
