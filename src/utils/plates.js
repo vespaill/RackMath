@@ -16,8 +16,7 @@ const calculatePlates = (targetLoad, barLoad, plateObjs) => {
   const lightestPlate = plateObjs.reduce((prev, cur) => (prev.value < cur.value ? prev : cur)).value;
 
   if (dif === 0) return { success, warn: 'justbar', calcdLoad: barLoad, calcdPlates: [] };
-  else if (dif <= lightestPlate)
-    return { success, warn: 'roundoff', calcdLoad: barLoad, calcdPlates: [], roundOff: { amount: dif, up: false } };
+  else if (dif <= lightestPlate) return { success, warn: 'roundoff', calcdLoad: barLoad, calcdPlates: [], roundOff: { amount: dif, up: false } };
 
   const combinations = findAllValidCombs(targetLoad, barLoad, plateObjs);
   if (combinations.length === 0) return { success: false, warn: 'notEnoughRoom' };
@@ -113,34 +112,24 @@ const isValidComb = (targetLoad, barLoad, plateObjs) => {
  * @param {String} combinations[].calcdPlates[].color The color of the plate.
  */
 const findBestComb = combinations => {
-  // console.log('combinations:', combinations);
+  console.log('combinations:', combinations);
   const minRoundOff = combinations.reduce((prev, cur) => (prev.roundOff < cur.roundOff ? prev : cur)).roundOff;
   const combsMinRoundOff = combinations.map(comb => ({ ...comb })).filter(comb => comb.roundOff === minRoundOff);
-  const minNumPlates = combsMinRoundOff.reduce((prev, cur) =>
-    prev.calcdPlates.length < cur.calcdPlates.length ? prev : cur
-  ).calcdPlates.length;
-  const combsMinNumPlates = combsMinRoundOff
-    .map(comb => ({ ...comb }))
-    .filter(comb => comb.calcdPlates.length === minNumPlates);
+  const minNumPlates = combsMinRoundOff.reduce((prev, cur) => prev.calcdPlates.length < cur.calcdPlates.length ? prev : cur).calcdPlates.length;
+  const combsMinNumPlates = combsMinRoundOff.map(comb => ({ ...comb })).filter(comb => comb.calcdPlates.length === minNumPlates);
   const combsHeaviestPlates = combsMinNumPlates.reduce((prev, cur) => {
     const prevHeaviestPlate = prev.calcdPlates.reduce((prev, cur) => (prev.value > cur.value ? prev : cur)).value;
     const curHeaviestPlate = cur.calcdPlates.reduce((prev, cur) => (prev.value > cur.value ? prev : cur)).value;
     if (prevHeaviestPlate === curHeaviestPlate) {
-      const prevHeaviestCount = prev.calcdPlates.reduce(
-        (acc, cur) => (cur.value === prevHeaviestPlate ? acc + 1 : acc),
-        0
-      );
-      const curHeaviestPlate = cur.calcdPlates.reduce(
-        (acc, cur) => (cur.value === prevHeaviestPlate ? acc + 1 : acc),
-        0
-      );
+      const prevHeaviestCount = prev.calcdPlates.reduce((acc, cur) => (cur.value === prevHeaviestPlate ? acc + 1 : acc), 0);
+      const curHeaviestPlate = cur.calcdPlates.reduce((acc, cur) => (cur.value === prevHeaviestPlate ? acc + 1 : acc), 0);
       return prevHeaviestCount > curHeaviestPlate ? prev : cur;
     }
     return prevHeaviestPlate > curHeaviestPlate ? prev : cur;
   });
-  // console.log('least round off:', combsMinRoundOff);
-  // console.log('least number of plates:', combsMinNumPlates);
-  // console.log('favorsHeavierPlates:', combsHeaviestPlates);
+  console.log('least round off:', combsMinRoundOff);
+  console.log('least number of plates:', combsMinNumPlates);
+  console.log('favorsHeavierPlates:', combsHeaviestPlates);
   return combsHeaviestPlates;
 };
 

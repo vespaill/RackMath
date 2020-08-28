@@ -189,13 +189,12 @@ class App extends Component {
     if (workWeight && workNumReps) {
       const prevWarmUpSets = this.state.warmUpSets;
       const warmUpSets = [];
-      const { percentages, unit, barbell, availPlates } = this.state;
-      const barbellWeight = barbell[unit];
+      const { percentages, unit, availPlates } = this.state;
       const lightestPlateAvail = availPlates[unit].filter(plate => plate.quantity > 0).map(plate => plate.value).reduce((prev, cur) => (prev < cur ? prev : cur));
       percentages.forEach(percentage => {
         const { value, on } = percentage;
         if (on) {
-          const weight = roundToNearestStep(workWeight * value, barbellWeight, lightestPlateAvail * 2);
+          const weight = roundToNearestStep(workWeight * value, lightestPlateAvail * 2);
           const numReps = calcRampUpReps(value, workNumReps);
           warmUpSets.push({ percentage: value, weight, numReps });
         }

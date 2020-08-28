@@ -1,10 +1,10 @@
-const roundToNearestStepHelper = (load, barbell, step) => {
-  const remainder = (load - barbell) % step;
-  const dividend = load - remainder;
+const roundToNearestStepHelper = (value, step) => {
+  const remainder = value % step;
+  const dividend = value - remainder;
   return remainder >= step / 2 ? dividend + step : dividend;
 };
 
-const roundToNearestStep = (load, barbell, step) => Math.round(roundToNearestStepHelper(load, barbell, step));
+const roundToNearestStep = (value, step) => Math.round(roundToNearestStepHelper(value, step));
 
 const calcRampUpReps = (percentage, workingNumSets) => {
   const numReps = Math.round(workingNumSets * (2 - 4 * (percentage - 0.5)));

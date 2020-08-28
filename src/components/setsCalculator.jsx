@@ -12,7 +12,7 @@ const SetsCalculator = props => {
   const workWeightContProps = { percentage: 1, weight: workWeight, numReps: workNumReps, isWorkingSet: true, btnText: 'Start' };
   const [showPopup, setShowPopup] = useState(false);
   const togglePopup = () => { setShowPopup(!showPopup); };
-  const formProps = { unit, onSubmit, onSettings: togglePopup, workWeight, btnText: 'Calculate' };
+  const formProps = { unit, onSubmit, onSettings: togglePopup, workWeight, workNumReps, btnText: 'Calculate',  };
 
   return (
     <>

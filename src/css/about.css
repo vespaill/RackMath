@@ -1,0 +1,21 @@
+.about {
+  width: 80%;
+  margin: auto;
+  margin-top: 1rem;
+}
+
+.about > * {
+  margin-bottom: 1rem;
+}
+
+blockquote {
+  font-style: italic;
+  margin-left: 2rem;
+}
+
+.example {
+  border: 1px solid #000;
+  border-radius: 10px;
+  padding: 1rem;
+  background-color: #e0dbc7;
+}

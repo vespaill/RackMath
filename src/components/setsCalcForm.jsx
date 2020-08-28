@@ -4,25 +4,41 @@ import Cog from './icons/cog';
 import '../css/loadForm.css';
 
 const SetsCalcForm = props => {
-  const { unit, onSubmit, btnText, onSettings, workWeight } = props;
+  const { unit, onSubmit, btnText, onSettings, workWeight, workNumReps } = props;
   const formControlProps = {
     required: true,
     type: 'number',
     inputMode: 'numeric',
     pattern: '[0-9]*',
     min: '0',
-    onFocus: e => { e.currentTarget.select(); }
+    onFocus: e => {
+      e.currentTarget.select();
+    }
   };
   const maxWeight = unit === 'kg' ? 2840 : 7000;
 
   return (
     <Form onSubmit={e => onSubmit(e)}>
       <InputGroup>
-        <FormControl name="loadInput" placeholder={workWeight > 0? workWeight : "weight"} step="0.5" max={maxWeight} {...formControlProps} />
+        <FormControl
+          name="loadInput"
+          placeholder="weight"
+          max={maxWeight}
+          step="0.5"
+          defaultValue={workWeight > 0 ? workWeight : 'weight'}
+          {...formControlProps}
+        />
         <InputGroup.Append>
           <InputGroup.Text>{unit} &times; </InputGroup.Text>
         </InputGroup.Append>
-        <FormControl name="numRepsInput" placeholder="reps" max="999" step="1" defaultValue="5" {...formControlProps} />
+        <FormControl
+          name="numRepsInput"
+          placeholder="reps"
+          max="999"
+          step="1"
+          defaultValue={workNumReps > 0 ? workNumReps : 'reps'}
+          {...formControlProps}
+        />
       </InputGroup>
       <div className="button-group">
         <Button className="calc-btn" type="submit" variant="dark">
