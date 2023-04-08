@@ -1,3 +1,4 @@
+const DEFAULT_INV_PLATES = 8;
 const INV_MAX_PLATES = 16;
 const SLEEVE_MAX_PLATES = 8;
 
@@ -81,13 +82,13 @@ const isValidComb = (targetLoad, barLoad, plateObjs) => {
   const lightestPlate = plateObjs.reduce((prev, cur) => (prev.value < cur.value ? prev : cur)).value;
 
   for (let plateGroup of coyPlateObjs) {
-    let { value, color, quantity } = plateGroup;
+    let { value, backgroundColor, color, quantity } = plateGroup;
     for (let i = 0; i < quantity; ++i) {
       const nextLoad = value * 2;
       const dif = Math.abs(targetLoad - (calcdLoad + nextLoad));
       if (calcdLoad + nextLoad < targetLoad || dif < lightestPlate) {
         calcdLoad += nextLoad;
-        calcdPlates.push({ value, color });
+        calcdPlates.push({ value, backgroundColor, color });
         if (calcdPlates.length > SLEEVE_MAX_PLATES) return { success: false };
         plateGroup.quantity--;
       }
@@ -174,9 +175,9 @@ const modQuantity = (plateObjs, modifier) => {
   return plateObjs
     .filter(({ quantity }) => quantity > 0)
     .map(plate => {
-      const { value, color, quantity } = plate;
-      return { value, color, quantity: quantity * modifier };
+      const { value, backgroundColor, color, quantity } = plate;
+      return { value, backgroundColor, color, quantity: quantity * modifier };
     });
 };
 
-export { INV_MAX_PLATES, modQuantity, withinRange, calculatePlates };
+export { DEFAULT_INV_PLATES, INV_MAX_PLATES, modQuantity, withinRange, calculatePlates };

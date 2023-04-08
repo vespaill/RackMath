@@ -8,7 +8,7 @@ import LoadValue from './loadValue';
 const Loader = props => {
   const { unit, barbellWeight, calcdPlates, calcdLoad, prevCalcdLoad, onSubmit, resetPrevLoad } = props;
   const formProps = { unit, onSubmit };
-  const diagramProps = { barbellWeight, calcdPlates };
+  const diagramProps = { unit, barbellWeight, calcdPlates };
   const loadValProps = { unit, calcdLoad, prevCalcdLoad };
   const { from } = useLocation();
 

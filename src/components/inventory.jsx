@@ -24,8 +24,8 @@ const Inventory = props => {
       </Header>
       <Row style={{ minWidth: '300px' }}>
         {availPlates[unit].map((plate, index) => {
-          const { value, color, quantity } = plate;
-          const plateGroupProps = { onClick: onPlateGroupClick, value, quantity, bgColor: color };
+          const { value, backgroundColor, color, quantity } = plate;
+          const plateGroupProps = { onClick: onPlateGroupClick, value, quantity, backgroundColor, color };
           return (
             <Col key={index} xs={4}>
               <InvPlateGroup {...plateGroupProps} />

@@ -31,7 +31,7 @@
 
 .plate-group__plate,
 .btn-clear {
-  background-color: gray;
+  /* background-color: gray; */
   padding: 2rem;
   font-size: 1.25rem;
   border: none;
