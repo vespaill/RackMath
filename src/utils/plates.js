@@ -1,6 +1,7 @@
 const DEFAULT_INV_PLATES = 8;
 const INV_MAX_PLATES = 16;
 const SLEEVE_MAX_PLATES = 8;
+const KILO_IN_POUNDS = 2.20462262185;
 
 /**
  *
@@ -12,25 +13,25 @@ const SLEEVE_MAX_PLATES = 8;
  * @param {Number} plateObjs[].quantity The quantity available of the plate.
  */
 const calculatePlates = (targetLoad, barLoad, plateObjs) => {
-  const success = true;
-  const dif = Math.abs(targetLoad - barLoad);
-  const lightestPlate = plateObjs.reduce((prev, cur) => (prev.value < cur.value ? prev : cur)).value;
+   const success = true;
+   const dif = Math.abs(targetLoad - barLoad);
+   const lightestPlate = plateObjs.reduce((prev, cur) => (prev.value < cur.value ? prev : cur)).value;
 
-  if (dif === 0) return { success, warn: 'justbar', calcdLoad: barLoad, calcdPlates: [] };
-  else if (dif <= lightestPlate) return { success, warn: 'roundoff', calcdLoad: barLoad, calcdPlates: [], roundOff: { amount: dif, up: false } };
+   if (dif === 0) return { success, warn: 'justbar', calcdLoad: barLoad, calcdPlates: [] };
+   else if (dif <= lightestPlate) return { success, warn: 'roundoff', calcdLoad: barLoad, calcdPlates: [], roundOff: { amount: dif, up: false } };
 
-  const combinations = findAllValidCombs(targetLoad, barLoad, plateObjs);
-  if (combinations.length === 0) return { success: false, warn: 'notEnoughRoom' };
-  const bestCombination = findBestComb(combinations);
-  const { calcdLoad, calcdPlates, roundOff: roundOffAmount } = bestCombination;
+   const combinations = findAllValidCombs(targetLoad, barLoad, plateObjs);
+   if (combinations.length === 0) return { success: false, warn: 'notEnoughRoom' };
+   const bestCombination = findBestComb(combinations);
+   const { calcdLoad, calcdPlates, roundOff: roundOffAmount } = bestCombination;
 
-  let warn, roundOff;
-  if (roundOffAmount) {
-    warn = 'roundoff';
-    roundOff = { amount: roundOffAmount, up: calcdLoad > targetLoad };
-  }
+   let warn, roundOff;
+   if (roundOffAmount) {
+      warn = 'roundoff';
+      roundOff = { amount: roundOffAmount, up: calcdLoad > targetLoad };
+   }
 
-  return { success, calcdLoad, calcdPlates, roundOff, warn };
+   return { success, calcdLoad, calcdPlates, roundOff, warn };
 };
 
 /**
@@ -44,23 +45,23 @@ const calculatePlates = (targetLoad, barLoad, plateObjs) => {
  * @param {Number} plateObjs[].quantity The quantity available of the plate.
  */
 const findAllValidCombs = (targetLoad, barLoad, plateObjs) => {
-  // console.log('available plates:', availPlates);
-  let cpyPlateObjs = plateObjs.map(plate => ({ ...plate }));
-  let combinations = [];
-  let subsets = calcSubsets(cpyPlateObjs); // array of arrays of plateGroups
-  // console.log('all subsets of available plates:', subsets);
+   // console.log('available plates:', availPlates);
+   let cpyPlateObjs = plateObjs.map(plate => ({ ...plate }));
+   let combinations = [];
+   let subsets = calcSubsets(cpyPlateObjs); // array of arrays of plateGroups
+   // console.log('all subsets of available plates:', subsets);
 
-  for (let subset of subsets) {
-    let subsetCpy = subset.map(plateGroup => ({ ...plateGroup })); // arrays of plateGroups
-    while (subsetCpy.length > 0) {
-      let { success, calcdLoad, calcdPlates, roundOff } = isValidComb(targetLoad, barLoad, subsetCpy);
-      if (success) combinations.push({ calcdLoad, calcdPlates, roundOff });
-      subsetCpy[0].quantity--;
-      if (subsetCpy[0].quantity <= 0) subsetCpy.shift();
-    }
-  }
-  // console.log('combinations:', combinations);
-  return combinations;
+   for (let subset of subsets) {
+      let subsetCpy = subset.map(plateGroup => ({ ...plateGroup })); // arrays of plateGroups
+      while (subsetCpy.length > 0) {
+         let { success, calcdLoad, calcdPlates, roundOff } = isValidComb(targetLoad, barLoad, subsetCpy);
+         if (success) combinations.push({ calcdLoad, calcdPlates, roundOff });
+         subsetCpy[0].quantity--;
+         if (subsetCpy[0].quantity <= 0) subsetCpy.shift();
+      }
+   }
+   // console.log('combinations:', combinations);
+   return combinations;
 };
 
 /**
@@ -76,29 +77,29 @@ const findAllValidCombs = (targetLoad, barLoad, plateObjs) => {
  * @param {Number} plateObjs[].quantity The quantity available of the plate.
  */
 const isValidComb = (targetLoad, barLoad, plateObjs) => {
-  let coyPlateObjs = plateObjs.map(plate => ({ ...plate }));
-  let calcdLoad = barLoad;
-  const calcdPlates = [];
-  const lightestPlate = plateObjs.reduce((prev, cur) => (prev.value < cur.value ? prev : cur)).value;
+   let coyPlateObjs = plateObjs.map(plate => ({ ...plate }));
+   let calcdLoad = barLoad;
+   const calcdPlates = [];
+   const lightestPlate = plateObjs.reduce((prev, cur) => (prev.value < cur.value ? prev : cur)).value;
 
-  for (let plateGroup of coyPlateObjs) {
-    let { value, backgroundColor, color, quantity } = plateGroup;
-    for (let i = 0; i < quantity; ++i) {
-      const nextLoad = value * 2;
-      const dif = Math.abs(targetLoad - (calcdLoad + nextLoad));
-      if (calcdLoad + nextLoad < targetLoad || dif < lightestPlate) {
-        calcdLoad += nextLoad;
-        calcdPlates.push({ value, backgroundColor, color });
-        if (calcdPlates.length > SLEEVE_MAX_PLATES) return { success: false };
-        plateGroup.quantity--;
+   for (let plateGroup of coyPlateObjs) {
+      let { value, backgroundColor, color, quantity } = plateGroup;
+      for (let i = 0; i < quantity; ++i) {
+         const nextLoad = value * 2;
+         const dif = Math.abs(targetLoad - (calcdLoad + nextLoad));
+         if (calcdLoad + nextLoad < targetLoad || dif < lightestPlate) {
+            calcdLoad += nextLoad;
+            calcdPlates.push({ value, backgroundColor, color });
+            if (calcdPlates.length > SLEEVE_MAX_PLATES) return { success: false };
+            plateGroup.quantity--;
+         }
       }
-    }
-  }
-  const roundOff = Math.abs(targetLoad - calcdLoad);
-  const heaviestPlate = plateObjs.reduce((prev, cur) => (prev.value > cur.value ? prev : cur)).value;
-  // Only return success if roundOff is reasonable.
-  if (roundOff > heaviestPlate * 2) return { success: false };
-  return { success: true, calcdLoad, calcdPlates, roundOff };
+   }
+   const roundOff = Math.abs(targetLoad - calcdLoad);
+   const heaviestPlate = plateObjs.reduce((prev, cur) => (prev.value > cur.value ? prev : cur)).value;
+   // Only return success if roundOff is reasonable.
+   if (roundOff > heaviestPlate * 2) return { success: false };
+   return { success: true, calcdLoad, calcdPlates, roundOff };
 };
 
 /**
@@ -113,25 +114,25 @@ const isValidComb = (targetLoad, barLoad, plateObjs) => {
  * @param {String} combinations[].calcdPlates[].color The color of the plate.
  */
 const findBestComb = combinations => {
-  console.log('combinations:', combinations);
-  const minRoundOff = combinations.reduce((prev, cur) => (prev.roundOff < cur.roundOff ? prev : cur)).roundOff;
-  const combsMinRoundOff = combinations.map(comb => ({ ...comb })).filter(comb => comb.roundOff === minRoundOff);
-  const minNumPlates = combsMinRoundOff.reduce((prev, cur) => prev.calcdPlates.length < cur.calcdPlates.length ? prev : cur).calcdPlates.length;
-  const combsMinNumPlates = combsMinRoundOff.map(comb => ({ ...comb })).filter(comb => comb.calcdPlates.length === minNumPlates);
-  const combsHeaviestPlates = combsMinNumPlates.reduce((prev, cur) => {
-    const prevHeaviestPlate = prev.calcdPlates.reduce((prev, cur) => (prev.value > cur.value ? prev : cur)).value;
-    const curHeaviestPlate = cur.calcdPlates.reduce((prev, cur) => (prev.value > cur.value ? prev : cur)).value;
-    if (prevHeaviestPlate === curHeaviestPlate) {
-      const prevHeaviestCount = prev.calcdPlates.reduce((acc, cur) => (cur.value === prevHeaviestPlate ? acc + 1 : acc), 0);
-      const curHeaviestPlate = cur.calcdPlates.reduce((acc, cur) => (cur.value === prevHeaviestPlate ? acc + 1 : acc), 0);
-      return prevHeaviestCount > curHeaviestPlate ? prev : cur;
-    }
-    return prevHeaviestPlate > curHeaviestPlate ? prev : cur;
-  });
-  console.log('least round off:', combsMinRoundOff);
-  console.log('least number of plates:', combsMinNumPlates);
-  console.log('favorsHeavierPlates:', combsHeaviestPlates);
-  return combsHeaviestPlates;
+   console.log('combinations:', combinations);
+   const minRoundOff = combinations.reduce((prev, cur) => (prev.roundOff < cur.roundOff ? prev : cur)).roundOff;
+   const combsMinRoundOff = combinations.map(comb => ({ ...comb })).filter(comb => comb.roundOff === minRoundOff);
+   const minNumPlates = combsMinRoundOff.reduce((prev, cur) => prev.calcdPlates.length < cur.calcdPlates.length ? prev : cur).calcdPlates.length;
+   const combsMinNumPlates = combsMinRoundOff.map(comb => ({ ...comb })).filter(comb => comb.calcdPlates.length === minNumPlates);
+   const combsHeaviestPlates = combsMinNumPlates.reduce((prev, cur) => {
+      const prevHeaviestPlate = prev.calcdPlates.reduce((prev, cur) => (prev.value > cur.value ? prev : cur)).value;
+      const curHeaviestPlate = cur.calcdPlates.reduce((prev, cur) => (prev.value > cur.value ? prev : cur)).value;
+      if (prevHeaviestPlate === curHeaviestPlate) {
+         const prevHeaviestCount = prev.calcdPlates.reduce((acc, cur) => (cur.value === prevHeaviestPlate ? acc + 1 : acc), 0);
+         const curHeaviestPlate = cur.calcdPlates.reduce((acc, cur) => (cur.value === prevHeaviestPlate ? acc + 1 : acc), 0);
+         return prevHeaviestCount > curHeaviestPlate ? prev : cur;
+      }
+      return prevHeaviestPlate > curHeaviestPlate ? prev : cur;
+   });
+   console.log('least round off:', combsMinRoundOff);
+   console.log('least number of plates:', combsMinNumPlates);
+   console.log('favorsHeavierPlates:', combsHeaviestPlates);
+   return combsHeaviestPlates;
 };
 
 /**
@@ -140,19 +141,19 @@ const findBestComb = combinations => {
  * @param {Object[]} set An array of objects.
  */
 const calcSubsets = set => {
-  let numSubsets = 1 << set.length; // 2^n
-  let subsets = [];
+   let numSubsets = 1 << set.length; // 2^n
+   let subsets = [];
 
-  for (let bitSet = numSubsets - 1; bitSet >= 0; --bitSet) {
-    let subset = [];
-    // Iterate through the bitSet. Checking each bit.
-    for (let j = 0; j < set.length; ++j) {
-      // If the bit at position j is turned on in the bit set, push element j.
-      if ((bitSet & (1 << j)) > 0) subset.push({ ...set[j] });
-    }
-    if (subset.length > 0) subsets.push(subset); // Push subset into list of all subsets.
-  }
-  return subsets;
+   for (let bitSet = numSubsets - 1; bitSet >= 0; --bitSet) {
+      let subset = [];
+      // Iterate through the bitSet. Checking each bit.
+      for (let j = 0; j < set.length; ++j) {
+         // If the bit at position j is turned on in the bit set, push element j.
+         if ((bitSet & (1 << j)) > 0) subset.push({ ...set[j] });
+      }
+      if (subset.length > 0) subsets.push(subset); // Push subset into list of all subsets.
+   }
+   return subsets;
 };
 
 /**
@@ -172,12 +173,23 @@ const withinRange = (input, min, max) => input >= min && input <= max;
  * @param {Number} plateObjs[].quantity The quantity available of the plate.
  */
 const modQuantity = (plateObjs, modifier) => {
-  return plateObjs
-    .filter(({ quantity }) => quantity > 0)
-    .map(plate => {
-      const { value, backgroundColor, color, quantity } = plate;
-      return { value, backgroundColor, color, quantity: quantity * modifier };
-    });
+   return plateObjs
+      .filter(({ quantity }) => quantity > 0)
+      .map(plate => {
+         const { value, backgroundColor, color, quantity } = plate;
+         return { value, backgroundColor, color, quantity: quantity * modifier };
+      });
 };
+const round = value => Math.round(value*100)/100;
+const toPounds = kilos => round(kilos * KILO_IN_POUNDS);
+const toKilos = pounds => round(pounds / KILO_IN_POUNDS);
 
-export { DEFAULT_INV_PLATES, INV_MAX_PLATES, modQuantity, withinRange, calculatePlates };
+export {
+   DEFAULT_INV_PLATES,
+   INV_MAX_PLATES,
+   modQuantity,
+   withinRange,
+   calculatePlates,
+   toPounds,
+   toKilos
+};

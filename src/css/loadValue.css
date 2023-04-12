@@ -9,13 +9,19 @@
   position: absolute;
   bottom: 66px;
   font-size: 1.5rem;
-  padding: 1.25rem 1rem;
+  padding: 0.75rem 1rem;
 }
 
 .load-value__prev {
-  right: 10px;
+   right: 10px;
 }
 
 .load-value__cur {
-  right: 10000px;
+   right: 10000px;
+}
+
+.secondary-units {
+   font-size: 1rem;
+   margin-bottom: 0.4rem;
+   text-align: right;
 }
